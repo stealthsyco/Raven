@@ -10,7 +10,7 @@ import React, {
   View
 } from 'react-native';
 
-class signup extends Component {
+class festivalSignup extends Component {
   render() {
     return (
       //Add navigaton
@@ -31,4 +31,4 @@ var styles = StyleSheet.create({
   }
 });
 
-module.exports = signup;
+module.exports = festivalSignup;

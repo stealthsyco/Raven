@@ -27,7 +27,6 @@ class login extends Component {
 	}
 
 	onPasswordChanged(event){
-		console.log('changed username');
 		this.setState({ password: event.nativeEvent.text });
 	}
 	render() {
@@ -86,9 +85,6 @@ var styles = StyleSheet.create({
   topSpacer: {
   	flex: .25
   },
-  bottomSpacer: {
-  	flex: .51
-  },
   inputContainer: {
   	flex: .24,
   	backgroundColor: '#3C3C3C',
@@ -124,6 +120,9 @@ var styles = StyleSheet.create({
   	justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#199C66'
+  },
+  bottomSpacer: {
+  	flex: .51
   },
   whiteFont: {
   	color: '#FFFFFF',

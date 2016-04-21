@@ -44,14 +44,16 @@ class home extends Component {
 
         <View style={styles.bottomContainer}>
 
-            <TouchableHighlight onPress={this.loginPressed.bind(this)}
+            <TouchableHighlight 
+            	onPress={this.loginPressed.bind(this)}
             	style={styles.loginButton}>
-            	<Text style={styles.whiteFont}> LOG IN </Text>
+            	<Text style={styles.whiteFont}>LOG IN</Text>
             </TouchableHighlight>
 
-            <TouchableHighlight onPress={this.signupPressed.bind(this)}
+            <TouchableHighlight 
+            	onPress={this.signupPressed.bind(this)}
             	style={styles.signButton}>
-            	<Text style={styles.whiteFont}> SIGN UP </Text>
+            	<Text style={styles.whiteFont}>SIGN UP</Text>
             </TouchableHighlight>
 
         </View>
@@ -83,11 +85,6 @@ const styles = StyleSheet.create({
   	width: 150,
   	height: 150
   },
-  whiteFont: {
-  	color: '#FFFFFF',
-  	fontFamily: 'Verdana',
-  	fontSize: 15
-  },
     loginButton: {
     flex: .5,
     justifyContent: 'center',
@@ -99,6 +96,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#199C66'
+  },
+   whiteFont: {
+  	color: '#FFFFFF',
+  	fontFamily: 'Verdana',
+  	fontSize: 15
   }
 });
 
