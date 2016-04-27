@@ -16,6 +16,8 @@ import React, {
 
 var DatePickerModal = require('react-native-custom-action-sheet');
 var dismissKeyboard = require('./classes/dismissKeyboard');
+var validator = require('validator');
+var helperFunctions = require('./classes/helperFunctions');
 
 var monthNames = ["January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"
@@ -33,8 +35,15 @@ class fanSignup extends Component {
       password: '',
       repeat: '',
       dob: '',
-      date: new Date(),
-      showDatePicker: false
+      date: new Date('2005-01-01'),
+      showDatePicker: false,
+      emailValid: false,
+      usernameValid: false,
+      firstValid: false,
+      lastValid: false,
+      passwordValid: false,
+      dateValid: false,
+      usernameCheckValid: false
     };
   }
 
@@ -42,37 +51,103 @@ class fanSignup extends Component {
     this.setState({ date: date });
     console.log(date);
     this.setState({ dob: monthNames[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear().toString() });
+    if(helperFunctions.getAge(date) >= 13)
+      this.setState({ dateValid: true });
+    else
+      this.setState({ dateValid: false });
+    console.log(this.state.dateValid);
   }
 
   signPressed(){
 
+    if(this.state.emailValid && this.state.usernameCheckValid && this.state.firstValid && this.state.lastValid && this.state.passwordValid && this.state.dateValid){
+      console.log("It's all TRUE");
+      var obj = {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          'username': this.state.username,
+          'password': this.state.password,
+          'email': this.state.email,
+          'dob': this.state.dob,
+          'first': this.state.first,
+          'last': this.state.last
+
+        })
+      }
+
+      fetch('http://www.smithcoding.com:8888/api/users', obj)
+        .then((response) => response.text())
+        .then((responseText) => {
+          console.log(responseText);
+        })
+        .catch((error) => {
+          console.warn(error);
+        });
+    } else {
+      console.log('Username: ' + this.state.usernameCheckValid);
+      console.log("Email: " + this.state.emailValid);
+      console.log('Date: ' + this.state.dateValid);
+      console.log('Password: ' + this.state.passwordValid);
+      console.log('First: ' + this.state.firstValid);
+      console.log('Last: ' + this.state.lastValid);
+    }
   }
 
   onUsernameChanged(event){
     this.setState({ username: event.nativeEvent.text });
+    this.setState({ usernameValid: validator.isLength( event.nativeEvent.text, {min:8})});
+    //this is how to handle async function
+    if(this.state.usernameValid){
+      var self = this;
+      helperFunctions.checkUsername(this.state.username, function(response){
+        if(response == 200) {
+          self.setState({ usernameCheckValid: true });
+        } else {
+          self.setState({ usernameCheckValid: false });
+        }
+      });
+
+      this.setState({ usernameCheckValid: self.usernameCheckValid });
+    }
   }
 
   onEmailChanged(event){
     this.setState({ email: event.nativeEvent.text });
+    this.setState({ emailValid: validator.isEmail( event.nativeEvent.text )});
   }
 
   onFirstChanged(event){
     this.setState({ first: event.nativeEvent.text });
+    this.setState({ firstValid: validator.isAlpha( event.nativeEvent.text )});
   }
 
   onLastChanged(event){
     this.setState({ last: event.nativeEvent.text });
+    this.setState({ lastValid: validator.isAlpha( event.nativeEvent.text )});
   }
 
   onPasswordChanged(event){
     this.setState({ password: event.nativeEvent.text });
+    if(this.state.password.length > 7 && this.state.password == this.state.repeat)
+      this.setState({ passwordValid: true });
+    else
+      this.setState({ passwordValid: false });
   }
 
   onRepeatChanged(event){
     this.setState({ repeat: event.nativeEvent.text });
+    if(this.state.password.length > 7 && this.state.password == this.state.repeat)
+      this.setState({ passwordValid: true });
+    else
+      this.setState({ passwordValid: false });
   }
 
   render() {
+
     //This type of fuction has two options, one with true and one with false.
     //If it is false, the empty view is called. If it is true, the date picker
     //is shown.
@@ -89,13 +164,47 @@ class fanSignup extends Component {
           </View>
         </DatePickerModal> : <View />
 
+    var usernameField;
+    if(this.state.username == '')
+      usernameField = styles.defaultField;
+    else if(this.state.usernameValid == false || this.state.usernameCheckValid == false){
+      usernameField = styles.invalidField;
+    } else {
+      usernameField = styles.validField;
+    }
+
+    var emailField;
+    if(this.state.emailValid == false && this.state.email == '')
+      emailField = styles.defaultField;
+    else if(this.state.emailValid == false){
+      console.log(this.state.emailValid);
+      emailField = styles.invalidField;
+    } else
+      emailField = styles.validField;
+
+    var passwordField;
+      if(this.state.password == '')
+        passwordField = styles.defaultField;
+      else if(this.state.password != this.state.repeat || this.state.password.length < 8)
+        passwordField = styles.invalidField;
+      else if(this.state.password == this.state.repeat && this.state.password.length > 7)
+        passwordField = styles.validField;
+
+    var repeatField;
+      if(this.state.repeat == '')
+        repeatField = styles.defaultField;
+      else if(this.state.password != this.state.repeat || this.state.repeat.length < 8)
+        repeatField = styles.invalidField;
+      else if(this.state.password == this.state.repeat && this.state.repeat.length > 7)
+        repeatField = styles.validField;
+
     return (
       <View style={styles.container}>
         <View style={styles.topSpacer} />
 
         <View style={styles.inputContainer}>
 
-          <View style={styles.usernameField}> 
+          <View style={usernameField}> 
               <View style={styles.iconContainer} />
               <TextInput
                 style={[styles.textContainer, styles.whiteFont]}
@@ -104,11 +213,11 @@ class fanSignup extends Component {
                 autoCapitalize='none'
                 placeholder="Username"
                 placeholderTextColor="#6F6F6F"
-                value={this.state.username}
-                onChange={this.onUsernameChanged.bind(this)} />
+                onChange={this.onUsernameChanged.bind(this)}
+                value={this.state.username}/>
           </View>
 
-          <View style={styles.emailField}>
+          <View style={emailField}>
             <View style={styles.iconContainer} />
               <TextInput
                 ref='email'
@@ -132,7 +241,6 @@ class fanSignup extends Component {
                   placeholderTextColor="#6F6F6F"
                   value={this.state.first}
                   onChange={this.onFirstChanged.bind(this)} />
-
                 <TextInput
                   style={[styles.firstLastField, styles.whiteFont]}
                   autoCorrect={false}
@@ -144,7 +252,7 @@ class fanSignup extends Component {
               </View>
           </View>
 
-          <View style={styles.passwordField}>
+          <View style={passwordField}>
             <View style={styles.iconContainer} />
               <TextInput
                 style={[styles.textContainer, styles.whiteFont]}
@@ -157,10 +265,11 @@ class fanSignup extends Component {
                 onChange={this.onPasswordChanged.bind(this)} />
           </View>
 
-          <View style={styles.repeatField}>
+          <View style={repeatField}>
             <View style={styles.iconContainer} />
               <TextInput
                 style={[styles.textContainer, styles.whiteFont]}
+                password={true}
                 autoCorrect={false}
                 autoCapitalize='none'
                 placeholder="Repeat Password"
@@ -169,7 +278,7 @@ class fanSignup extends Component {
                 onChange={this.onRepeatChanged.bind(this)} />
           </View>
 
-          <View style={styles.dobField}>
+          <View style={styles.defaultField}>
             <View style={styles.iconContainer} />
             <TextInput
               style={[styles.textContainer, styles.whiteFont]}
@@ -180,12 +289,12 @@ class fanSignup extends Component {
             {showDatePicker}
           </View>
 
-
           <TouchableHighlight 
             onPress={this.signPressed.bind(this)}
             style={styles.signButton}>
             <Text style={styles.whiteFont}>SIGN UP</Text>
           </TouchableHighlight>
+
         </View>
 
         <View style={styles.bottomSpacer} />
@@ -204,47 +313,39 @@ var styles = StyleSheet.create({
     flex: .25
   },
   inputContainer: {
-    flex: .56,
-    backgroundColor: '#3C3C3C',
+    flex: .50,
+    backgroundColor: '#1C1C1C',
     marginLeft: 20,
     marginRight: 20
   },
-  usernameField: {
+  defaultField: {
     flex: 1,
-    marginBottom: 1,
+    borderWidth: 1,
+    borderColor: '#1C1C1C',
     backgroundColor: "#2C2C2C",
     flexDirection: 'row'   
   },
-  emailField: {
+  invalidField: {
     flex: 1,
-    marginBottom: 1,
+    borderWidth: 1,
+    borderColor: '#FF0000',
     backgroundColor: "#2C2C2C",
-    flexDirection: 'row'
+    flexDirection: 'row'   
+  },
+  validField: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#00FF00',
+    backgroundColor: "#2C2C2C",
+    flexDirection: 'row'   
+  },
+  firstLastField: {
+    flex: 1,
   },
   nameContainer: {
     flex: 1,
-    marginBottom: 1,
-    backgroundColor: "#2C2C2C",
-    flexDirection: 'row'
-  },
-  firstLastField: {
-    flex: 1
-  },
-  passwordField: {
-    flex: 1,
-    marginBottom: 1,
-    backgroundColor: "#2C2C2C",
-    flexDirection: 'row'
-  },
-  repeatField: {
-    flex: 1,
-    marginBottom: 1,
-    backgroundColor: "#2C2C2C",
-    flexDirection: 'row'
-  },
-  dobField: {
-    flex: 1,
-    marginBottom: 1,
+    borderWidth: 1,
+    borderColor: '#1C1C1C',
     backgroundColor: "#2C2C2C",
     flexDirection: 'row'
   },
@@ -265,7 +366,6 @@ var styles = StyleSheet.create({
     width: 28
   },
   textContainer: {
-    padding: 5,
     flex: .85,
     flexDirection: 'row'
   },
@@ -275,7 +375,7 @@ var styles = StyleSheet.create({
     height: 200
   },
   bottomSpacer: {
-    flex: .19
+    flex: .25
   },
   whiteFont: {
     color: '#FFFFFF',

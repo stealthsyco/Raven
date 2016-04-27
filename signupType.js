@@ -85,7 +85,7 @@ var styles = StyleSheet.create({
     alignItems: 'center'
   },
   inputContainer: {
-    flex: .16,
+    flex: .20,
     backgroundColor: '#3C3C3C',
     marginLeft: 20,
     marginRight: 20
@@ -105,7 +105,7 @@ var styles = StyleSheet.create({
     backgroundColor: '#199C66'
   },
   bottomSpacer: {
-    flex: .59
+    flex: .55
   },
   whiteFont: {
     color: '#FFFFFF',
