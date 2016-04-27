@@ -1,3 +1,7 @@
+/* fanSignup.js 
+   Developed by: Kyle Smith - 4/1/16
+*/
+
 'use strict';
 
 import React, {
@@ -19,6 +23,7 @@ var dismissKeyboard = require('./classes/dismissKeyboard');
 var validator = require('validator');
 var helperFunctions = require('./classes/helperFunctions');
 
+// This is used to convert the date into a string
 var monthNames = ["January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"
 ];
@@ -47,6 +52,8 @@ class fanSignup extends Component {
     };
   }
 
+  //When the date changes in the date picker, convert the date into a string.
+  //Also, update the date as it gets set.
   onDateChange(date){
     this.setState({ date: date });
     console.log(date);
@@ -58,8 +65,10 @@ class fanSignup extends Component {
     console.log(this.state.dateValid);
   }
 
+  /* When the signup button is pressed, this checks to make sure all of the required fields are
+     valid. It then makes a POST request to the server.
+     **Functionality to move to the next page needs to be added** */
   signPressed(){
-
     if(this.state.emailValid && this.state.usernameCheckValid && this.state.firstValid && this.state.lastValid && this.state.passwordValid && this.state.dateValid){
       console.log("It's all TRUE");
       var obj = {
@@ -97,6 +106,8 @@ class fanSignup extends Component {
     }
   }
 
+  /* Updates the username and checks it against the server to see if it has been created before.
+     It also makes sure the length of the username is a minimum of 8. This function uses a callback from the function written in helperFunctions.js. After the function happens, a closure is needed to keep up with the state while the asyncronous function works its magic. self handles this operation. */
   onUsernameChanged(event){
     this.setState({ username: event.nativeEvent.text });
     this.setState({ usernameValid: validator.isLength( event.nativeEvent.text, {min:8})});
@@ -115,21 +126,24 @@ class fanSignup extends Component {
     }
   }
 
+  // Setter for email changing
   onEmailChanged(event){
     this.setState({ email: event.nativeEvent.text });
     this.setState({ emailValid: validator.isEmail( event.nativeEvent.text )});
   }
 
+  // Setter for first changing
   onFirstChanged(event){
     this.setState({ first: event.nativeEvent.text });
     this.setState({ firstValid: validator.isAlpha( event.nativeEvent.text )});
   }
-
+  // Setter for last changing
   onLastChanged(event){
     this.setState({ last: event.nativeEvent.text });
     this.setState({ lastValid: validator.isAlpha( event.nativeEvent.text )});
   }
 
+  // Setter for password changing. Also makes sure the password is === to repeat and that it is at least 8 characters long.
   onPasswordChanged(event){
     this.setState({ password: event.nativeEvent.text });
     if(this.state.password.length > 7 && this.state.password == this.state.repeat)
@@ -138,6 +152,7 @@ class fanSignup extends Component {
       this.setState({ passwordValid: false });
   }
 
+  // Setter for repeat password changing. Same story as password
   onRepeatChanged(event){
     this.setState({ repeat: event.nativeEvent.text });
     if(this.state.password.length > 7 && this.state.password == this.state.repeat)
@@ -164,6 +179,7 @@ class fanSignup extends Component {
           </View>
         </DatePickerModal> : <View />
 
+    //Each of if statements below change the color of the border around their relative fields.
     var usernameField;
     if(this.state.username == '')
       usernameField = styles.defaultField;

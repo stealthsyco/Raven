@@ -12,6 +12,9 @@ import React, {
   View
 } from 'react-native';
 
+var helperFunctions = require('./classes/helperFunctions');
+var fanSignup = require('./fanSignup');
+
 class login extends Component {
 
 	constructor(props) {
@@ -22,13 +25,33 @@ class login extends Component {
 	  };
 	}
 
+  // Setter for username field
 	onUsernameChanged(event){
 		this.setState({ username: event.nativeEvent.text });
 	}
 
+  // Setter for password field
 	onPasswordChanged(event){
 		this.setState({ password: event.nativeEvent.text });
 	}
+
+  // Handler for login button
+  onLoginPressed(){
+    var self = this;
+      helperFunctions.checkLogin(this.state.username, this.state.password, function(response){
+        if(response == 200) {
+          self.props.navigator.push({
+            title: 'FAN',
+            component: fanSignup,
+            titleTextColor: '#FFFFFF',
+            barTintColor: '#1C1C1C',
+          })
+        } else {
+          //show error message
+        }
+      });
+  }
+
 	render() {
 	    return (
 	      <View style={styles.container}>
@@ -65,7 +88,8 @@ class login extends Component {
 	      		</View>
 
             <TouchableHighlight
-            	style={styles.loginButton}>
+            	style={styles.loginButton}
+              onPress={this.onLoginPressed.bind(this)}>
             	<Text style={styles.whiteFont}> LOG IN </Text>
             </TouchableHighlight>
 	      	</View>

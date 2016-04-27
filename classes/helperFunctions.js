@@ -15,6 +15,9 @@
 	    return age;
 	}
 
+
+	//this is a future, and it returns a promise
+	//when using this type of function, do not try to return data, rather return your response
 	function checkUsername(username, callback){
 	  	var res;
 
@@ -29,9 +32,22 @@
 		});
 	}
 
+	// This future will check to see if the login credentials are valid
+	function checkLogin(username, password, callback){
+
+		fetch('http://www.smithcoding.com:8888/api/login/' + username + '/' + password)
+		.then((response) => {
+			callback(response.status);
+		})
+		.catch((error) => {
+			console.warn(error);
+		});
+	}
+
 	var helperFunctions = {
 		getAge: getAge,
-		checkUsername: checkUsername
+		checkUsername: checkUsername,
+		checkLogin: checkLogin
 	};
 
 	return helperFunctions;

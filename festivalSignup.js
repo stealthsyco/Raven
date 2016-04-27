@@ -12,10 +12,9 @@ import React, {
 
 class festivalSignup extends Component {
   render() {
-    return (
-      //Add navigaton
-      <View style={styles.container} />
-    );
+    return(
+      <View />
+      );
   }
 }
 
