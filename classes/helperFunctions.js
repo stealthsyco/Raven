@@ -35,10 +35,19 @@
 	// This future will check to see if the login credentials are valid
 	function checkLogin(username, password, callback){
 
-		fetch('http://www.smithcoding.com:8888/api/login/' + username + '/' + password)
-		.then((response) => {
-			callback(response.status);
+		fetch('http://www.smithcoding.com:8888/api/authenticate/' + username + '/' + password)
+		.then((response) => response.json())
+		.then((responseData) => {
+			console.log(responseData);
+			callback(responseData);
 		})
+		// .then((response) => {
+		// 	callback(response);
+		// })
+		// .then(responseData) => {
+		// 	console.log(responseData.json);
+		// 	callback(responseData);
+		// })
 		.catch((error) => {
 			console.warn(error);
 		});

@@ -2,6 +2,7 @@
 
 import React, {
   AppRegistry,
+  AsyncStorage,
   TouchableHighlight,
   ActivityIndicatorIOS,
   Component,
@@ -12,8 +13,11 @@ import React, {
   View
 } from 'react-native';
 
-var helperFunctions = require('./classes/helperFunctions');
-var fanSignup = require('./fanSignup');
+var helperFunctions = require('../classes/helperFunctions');
+var homeFeed = require('./homeFeed');
+
+//Async-Storage key
+var storageKey = '@token:key';
 
 class login extends Component {
 
@@ -21,9 +25,15 @@ class login extends Component {
 	  super(props);
 	  this.state = {
 	    username: '',
-	    password: ''
+	    password: '',
+      token:'',
 	  };
 	}
+
+  saveToken(value) {
+    AsyncStorage.setItem("jwt", value);
+    this.setState({ token: value });
+  }
 
   // Setter for username field
 	onUsernameChanged(event){
@@ -39,10 +49,13 @@ class login extends Component {
   onLoginPressed(){
     var self = this;
       helperFunctions.checkLogin(this.state.username, this.state.password, function(response){
-        if(response == 200) {
+        //our response holds our token, we need to pass this along to different pages...
+        if(response.status === 200) {
+          self.state.token = response.token;
+          self.saveToken(response.token);
           self.props.navigator.push({
-            title: 'FAN',
-            component: fanSignup,
+            title: 'TRIBE FEED',
+            component: homeFeed,
             titleTextColor: '#FFFFFF',
             barTintColor: '#1C1C1C',
           })
@@ -60,7 +73,7 @@ class login extends Component {
 
 	      		<View style={styles.usernameField}>
 	      			<View style={styles.iconContainer}>
-	      				<Image style={styles.icon} source={require('./images/userIcon.png')} />
+	      				<Image style={styles.icon} source={require('../images/userIcon.png')} />
 	      			</View>
       				<TextInput
       					style={[styles.textContainer, styles.whiteFont]}
@@ -74,7 +87,7 @@ class login extends Component {
 
 	      		<View style={styles.passwordField}>
 	      			<View style={styles.iconContainer}>
-	      				<Image style={styles.icon} source={require('./images/passIcon.png')} />
+	      				<Image style={styles.icon} source={require('../images/passIcon.png')} />
 	      			</View>
 	  				<TextInput
 	  					password={true}

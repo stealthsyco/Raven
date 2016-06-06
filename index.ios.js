@@ -8,7 +8,7 @@ import React, {
   View
 } from 'react-native';
 
-var home = require('./home');
+var home = require('./iosViews/home');
 
 class Raven extends Component {
   render() {

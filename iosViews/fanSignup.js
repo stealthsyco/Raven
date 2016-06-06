@@ -19,9 +19,9 @@ import React, {
 } from 'react-native';
 
 var DatePickerModal = require('react-native-custom-action-sheet');
-var dismissKeyboard = require('./classes/dismissKeyboard');
+var dismissKeyboard = require('../classes/dismissKeyboard');
 var validator = require('validator');
-var helperFunctions = require('./classes/helperFunctions');
+var helperFunctions = require('../classes/helperFunctions');
 
 // This is used to convert the date into a string
 var monthNames = ["January", "February", "March", "April", "May", "June",
@@ -70,7 +70,6 @@ class fanSignup extends Component {
      **Functionality to move to the next page needs to be added** */
   signPressed(){
     if(this.state.emailValid && this.state.usernameCheckValid && this.state.firstValid && this.state.lastValid && this.state.passwordValid && this.state.dateValid){
-      console.log("It's all TRUE");
       var obj = {
         method: 'POST',
         headers: {
