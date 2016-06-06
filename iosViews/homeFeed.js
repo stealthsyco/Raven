@@ -13,6 +13,8 @@ import React, {
   View
 } from 'react-native';
 
+var TabBar = require('../components/tabComponent');
+
 class homeFeed extends Component {
 
 	constructor(props) {
@@ -30,8 +32,9 @@ class homeFeed extends Component {
 
 	render(){
 		console.log("Tribe feed has token: " + this.state.token);
+
 		return(
-			<View />
+			<TabBar />
 		);
 	}
 }
