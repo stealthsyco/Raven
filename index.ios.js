@@ -1,27 +1,29 @@
 'use strict';
 
-import React, {
+import React, { Component, } from 'react';
+import {
   AppRegistry,
+  NavigatorIOS,
   StatusBar,
-  Component,
   StyleSheet,
-  View
+  View,
 } from 'react-native';
 
-var home = require('./iosViews/home');
+import AppNavigator from './AppNavigator.js';
 
 class Raven extends Component {
   render() {
     StatusBar.setBarStyle('light-content')
     return (
       //Add navigaton
-       <React.NavigatorIOS
-        style={styles.container}
-        initialRoute={{
-          title: '',
-          component: home,
-          navigationBarHidden: true,
-        }}/>
+      <AppNavigator />
+       // <NavigatorIOS
+       //  style={styles.container}
+       //  initialRoute={{
+       //    title: '',
+       //    component: main,
+       //    navigationBarHidden: true,
+       //  }} />
     );
   }
 }

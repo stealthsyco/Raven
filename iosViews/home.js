@@ -1,107 +1,44 @@
 'use strict';
 
-import React, {
+import React, { Component } from 'react';
+import {
   AppRegistry,
+  AsyncStorage,
   TouchableHighlight,
   ActivityIndicatorIOS,
-  Component,
   StyleSheet,
-  Text,
   Image,
+  Text,
+  TextInput,
   View
 } from 'react-native';
 
-var login = require('./login');
-var signupType = require('./signupType');
+var TabBar = require('../components/tabComponent');
 
-class home extends Component {
-	loginPressed(){
-		this.props.navigator.push({
-		  title: 'LOG IN',
-          component: login,
-          titleTextColor: '#FFFFFF',
-          barTintColor: '#1C1C1C',
-		})
+class homeFeed extends Component {
+
+	constructor(props) {
+	  super(props);
+	  this.state = {
+      	token: ''
+	  };
 	}
 
-	signupPressed(){
-		this.props.navigator.push({
-		  title: 'SIGN UP',
-          component: signupType,
-          titleTextColor: '#FFFFFF',
-          barTintColor: '#1C1C1C',
-		})
+	componentDidMount() {
+	    AsyncStorage.getItem("jwt").then((value) => {
+	        this.setState({"token": value});
+	    }).done();
 	}
 
-  render() {
-    return (
-      <View style={styles.container}>
-        <View style={styles.topContainer}>
-          <View style={styles.backdrop}>
-          	<Image style={styles.logo} source={{uri:'http://cdn.marketplaceimages.windowsphone.com/v8/images/f6ca8518-ee7f-4e3d-ba83-1c4753f7d2c1?imageType=ws_icon_medium'}} />
-          </View>
-        </View>
+	render(){
+		console.log("Tribe feed has token: " + this.state.token);
 
-        <View style={styles.bottomContainer}>
-
-            <TouchableHighlight 
-            	onPress={this.loginPressed.bind(this)}
-            	style={styles.loginButton}>
-            	<Text style={styles.whiteFont}>LOG IN</Text>
-            </TouchableHighlight>
-
-            <TouchableHighlight 
-            	onPress={this.signupPressed.bind(this)}
-            	style={styles.signButton}>
-            	<Text style={styles.whiteFont}>SIGN UP</Text>
-            </TouchableHighlight>
-
-        </View>
-      </View>
-    );
-  }
+		return(
+			<TabBar />
+		);
+	}
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'column'
-  },
-  topContainer: {
-    flex: .92,
-    flexDirection: 'column'
-  },
-    bottomContainer: {
-    flex: .08,
-    flexDirection: 'row'
-  },
-  backdrop: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#225F69'
-  },
-  logo: {
-  	width: 150,
-  	height: 150
-  },
-    loginButton: {
-    flex: .5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#1C1C1C'
-  },
-    signButton: {
-    flex: .5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#199C66'
-  },
-   whiteFont: {
-  	color: '#FFFFFF',
-  	fontFamily: 'Verdana',
-  	fontSize: 15
-  }
-});
 
-module.exports = home;
+
+module.exports = homeFeed;

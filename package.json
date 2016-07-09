@@ -6,8 +6,11 @@
     "start": "node node_modules/react-native/local-cli/cli.js start"
   },
   "dependencies": {
-    "react": "^0.14.8",
-    "react-native": "^0.23.1",
-    "validator": "^5.2.0"
+    "react": "15.0.2",
+    "react-native": "^0.26.3",
+    "react-native-custom-action-sheet": "0.0.11",
+    "react-native-swiper": "^1.4.5",
+    "react-native-tableview-simple": "^0.10.1",
+    "validator": "^5.3.0"
   }
 }

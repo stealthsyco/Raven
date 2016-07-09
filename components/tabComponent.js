@@ -1,18 +1,21 @@
 'use strict';
 
-import React, {
+import React, { Component } from 'react';
+import {
   AppRegistry,
   AsyncStorage,
   TabBarIOS,
+  NavigatorIOS,
   TouchableHighlight,
   ActivityIndicatorIOS,
-  Component,
   StyleSheet,
   Image,
   Text,
   TextInput,
   View
 } from 'react-native';
+
+var Profile = require('../iosViews/profile');
 
 var TabBar = React.createClass({
   statics: {
@@ -24,7 +27,7 @@ var TabBar = React.createClass({
 
   getInitialState: function() {
     return {
-      selectedTab: 'feedTab',
+      selectedTab: 'profileTab',
       notifCount: 0,
       presses: 0,
     };
@@ -37,6 +40,19 @@ var TabBar = React.createClass({
         <Text style={styles.tabText}>{num} re-renders of the {pageText}</Text>
       </View>
     );
+  },
+
+  _renderProfileView: function() {
+    return (
+      <NavigatorIOS style={styles.container}
+        tintColor='#D6573D'
+        barTintColor='#1C1C1C'
+        titleTextColor='#D6573D'
+        initialRoute={{
+          title: 'Kyle',
+          component: Profile
+      }} />
+    )
   },
 
   render: function() {
@@ -94,10 +110,9 @@ var TabBar = React.createClass({
           onPress={() => {
             this.setState({
               selectedTab: 'profileTab',
-              presses: this.state.presses + 1
             });
           }}>
-          {this._renderContent('#21551C', 'Green Tab', this.state.presses)}
+          {this._renderProfileView()}
         </TabBarIOS.Item>
       </TabBarIOS>
     );
@@ -106,6 +121,9 @@ var TabBar = React.createClass({
 });
 
 var styles = StyleSheet.create({
+  container: {
+    flex: 1
+  },
   tabContent: {
     flex: 1,
     alignItems: 'center',

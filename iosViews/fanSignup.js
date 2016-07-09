@@ -4,14 +4,15 @@
 
 'use strict';
 
-import React, {
+import React, { Component } from 'react';
+import {
   AppRegistry,
   TouchableHighlight,
   TouchableOpacity,
   ActivityIndicatorIOS,
+  AlertIOS,
   DatePickerIOS,
   CustomActionSheet,
-  Component,
   StyleSheet,
   Text,
   TextInput,
@@ -55,7 +56,7 @@ class fanSignup extends Component {
   //When the date changes in the date picker, convert the date into a string.
   //Also, update the date as it gets set.
   onDateChange(date){
-    this.setState({ date: date });
+    this.setState({ date: new Date(date) });
     console.log(date);
     this.setState({ dob: monthNames[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear().toString() });
     if(helperFunctions.getAge(date) >= 13)
@@ -82,7 +83,7 @@ class fanSignup extends Component {
           'email': this.state.email,
           'dob': this.state.dob,
           'first': this.state.first,
-          'last': this.state.last
+          'last': this.state.last,
 
         })
       }
@@ -95,6 +96,17 @@ class fanSignup extends Component {
         .catch((error) => {
           console.warn(error);
         });
+
+      //this.props.navigator.popToTop();
+
+      AlertIOS.alert(
+        'Success',
+        'You can now log in!',
+        [
+          {text: 'Let\'s GO!', onPress: this.props.navigator.popToTop()}
+        ],
+      );
+
     } else {
       console.log('Username: ' + this.state.usernameCheckValid);
       console.log("Email: " + this.state.emailValid);
@@ -113,7 +125,7 @@ class fanSignup extends Component {
     //this is how to handle async function
     if(this.state.usernameValid){
       var self = this;
-      helperFunctions.checkUsername(this.state.username, function(response){
+      helperFunctions.checkUsername(event.nativeEvent.text, function(response){
         if(response == 200) {
           self.setState({ usernameCheckValid: true });
         } else {
@@ -145,7 +157,7 @@ class fanSignup extends Component {
   // Setter for password changing. Also makes sure the password is === to repeat and that it is at least 8 characters long.
   onPasswordChanged(event){
     this.setState({ password: event.nativeEvent.text });
-    if(this.state.password.length > 7 && this.state.password == this.state.repeat)
+    if(event.nativeEvent.text.length > 7 && event.nativeEvent.text == this.state.repeat)
       this.setState({ passwordValid: true });
     else
       this.setState({ passwordValid: false });
@@ -154,7 +166,9 @@ class fanSignup extends Component {
   // Setter for repeat password changing. Same story as password
   onRepeatChanged(event){
     this.setState({ repeat: event.nativeEvent.text });
-    if(this.state.password.length > 7 && this.state.password == this.state.repeat)
+    console.log(event.nativeEvent.text);
+    console.log(this.state.password);
+    if(event.nativeEvent.text.length > 7 && this.state.password === event.nativeEvent.text)
       this.setState({ passwordValid: true });
     else
       this.setState({ passwordValid: false });
@@ -162,6 +176,9 @@ class fanSignup extends Component {
 
   render() {
 
+    //There is a problem with DatePickerIOS which causes two warnings, but the functionality still works.
+    //This problem needs to be fixed by Facebook, but is not hindering progress.
+    console.disableYellowBox = true;
     //This type of fuction has two options, one with true and one with false.
     //If it is false, the empty view is called. If it is true, the date picker
     //is shown.

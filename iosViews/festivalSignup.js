@@ -1,10 +1,10 @@
 'use strict';
 
-import React, {
+import React, { Component } from 'react';
+import {
   AppRegistry,
   TouchableHighlight,
   ActivityIndicatorIOS,
-  Component,
   StyleSheet,
   Text,
   View

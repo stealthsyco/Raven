@@ -1,11 +1,11 @@
 'use strict';
 
-import React, {
+import React, { Component } from 'react';
+import {
   AppRegistry,
   AsyncStorage,
   TouchableHighlight,
   ActivityIndicatorIOS,
-  Component,
   StyleSheet,
   Image,
   Text,
@@ -14,58 +14,86 @@ import React, {
 } from 'react-native';
 
 var helperFunctions = require('../classes/helperFunctions');
-var homeFeed = require('./homeFeed');
+// var setupInfo = require('./setupInfo.js');
+// var home = require('./home');
 
 //Async-Storage key
 var storageKey = '@token:key';
 
-class login extends Component {
+var Login = React.createClass({
 
-	constructor(props) {
-	  super(props);
-	  this.state = {
-	    username: '',
-	    password: '',
-      token:'',
-	  };
-	}
+  getInitialState: function() {
+    return {
+      username: '',
+      password: '',
+      token: ''
+    };
+  },
 
-  saveToken(value) {
+  saveToken: function(value, username) {
     AsyncStorage.setItem("jwt", value);
-    this.setState({ token: value });
-  }
+    AsyncStorage.setItem("username", username);
+    //this.setState({ token: value });
+    this.state.token = value;
+  },
 
   // Setter for username field
-	onUsernameChanged(event){
-		this.setState({ username: event.nativeEvent.text });
-	}
+	onUsernameChanged: function(event){
+		//this.setState({ username: event.nativeEvent.text });
+    this.state.username = event.nativeEvent.text;
+	},
 
   // Setter for password field
-	onPasswordChanged(event){
-		this.setState({ password: event.nativeEvent.text });
-	}
+	onPasswordChanged: function(event){
+		//this.setState({ password: event.nativeEvent.text });
+    this.state.password = event.nativeEvent.text;
+	},
 
   // Handler for login button
-  onLoginPressed(){
+  onLoginPressed: function(){
     var self = this;
       helperFunctions.checkLogin(this.state.username, this.state.password, function(response){
         //our response holds our token, we need to pass this along to different pages...
         if(response.status === 200) {
           self.state.token = response.token;
-          self.saveToken(response.token);
-          self.props.navigator.push({
-            title: 'TRIBE FEED',
-            component: homeFeed,
-            titleTextColor: '#FFFFFF',
-            barTintColor: '#1C1C1C',
+          self.saveToken(response.token, self.state.username);
+
+          if(response.firstlogin == true && response.setup == 0){
+            self.props.navigator.push({
+              title: 'About You',
+              component: setupInfo,
+              rightButtonTitle: 'Next',
+
+              onRightButtonPress: () => { setupInfo.prototype.onRightNavButtonClicked() },
+              titleTextColor: '#FFFFFF',
+              barTintColor: '#1C1C1C',
+            })
+          }
+          if(response.firstlogin == true && response.setup == 1){
+
+          }
+          if(response.firstlogin == true && response.setup == 2){
+
+          }
+          if(response.firstlogin == true && response.setup == 3){
+
+          }
+
+          else {
+            self.props.navigator.push({
+              title: 'TRIBE FEED',
+              component: home,
+              titleTextColor: '#FFFFFF',
+              barTintColor: '#1C1C1C',
           })
+          }
         } else {
           //show error message
         }
       });
-  }
+  },
 
-	render() {
+	render: function() {
 	    return (
 	      <View style={styles.container}>
 	      	<View style={styles.topSpacer} />
@@ -74,7 +102,7 @@ class login extends Component {
 	      		<View style={styles.usernameField}>
 	      			<View style={styles.iconContainer}>
 	      				<Image style={styles.icon} source={require('../images/userIcon.png')} />
-	      			</View>
+	      			</View>a
       				<TextInput
       					style={[styles.textContainer, styles.whiteFont]}
       					autoCorrect={false}
@@ -82,7 +110,7 @@ class login extends Component {
       					placeholder="Username"
       					placeholderTextColor="#6F6F6F"
       					value={this.state.username}
-      					onChange={this.onUsernameChanged.bind(this)} />
+      					onChange={this.onUsernameChanged()} />
 	      		</View>
 
 	      		<View style={styles.passwordField}>
@@ -93,16 +121,16 @@ class login extends Component {
 	  					password={true}
 	  					style={[styles.textContainer, styles.whiteFont]}
 	  					autoCorrect={false}
-	      				autoCapitalize='none'
+	      			autoCapitalize='none'
 	  					placeholder="Password"
 	  					placeholderTextColor="#6F6F6F"
 	  					value={this.state.password} 
-	  					onChange={this.onPasswordChanged.bind(this)} />
+	  					onChange={this.onPasswordChanged()} />
 	      		</View>
 
             <TouchableHighlight
             	style={styles.loginButton}
-              onPress={this.onLoginPressed.bind(this)}>
+              onPress={this.onLoginPressed()}>
             	<Text style={styles.whiteFont}> LOG IN </Text>
             </TouchableHighlight>
 	      	</View>
@@ -111,7 +139,7 @@ class login extends Component {
 	      </View>
 	    );
   	}
-}
+});
 
 var styles = StyleSheet.create({
   container: {
@@ -168,4 +196,4 @@ var styles = StyleSheet.create({
   }
 });
 
-module.exports = login;
+module.exports = Login;
