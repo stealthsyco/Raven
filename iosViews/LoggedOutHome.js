@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import {
   AppRegistry,
   TouchableHighlight,
+  TouchableOpacity,
   ActivityIndicatorIOS,
   StyleSheet,
   Text,
@@ -16,22 +17,22 @@ var signupType = require('./signupType');
 
 var LoggedOutHome = React.createClass({
 
-	loginPressed: function(){
-		 this.props.navigator.push({
-		//   //title: 'LOG IN',
-       pageIdent: 'Login',
-  //     //titleTextColor: '#FFFFFF',
-  //     //barTintColor: '#1C1C1C',
-		 });
+	loginPressed(){
+		    this.props.navigator.push({
+		    title: 'LOG IN',
+        pageIdent: 'Login',
+        titleTextColor: '#FFFFFF',
+        barTintColor: '#1C1C1C',
+		  });
 	},
 
-	signupPressed: function(){
-		// this.props.navigator.push({
-		//   title: 'SIGN UP',
-  //         component: signupType,
-  //         titleTextColor: '#FFFFFF',
-  //         barTintColor: '#1C1C1C',
-		 //})
+	signupPressed()  {
+		 this.props.navigator.push({
+		   title: 'SIGN UP',
+           component: signupType,
+           titleTextColor: '#FFFFFF',
+           barTintColor: '#1C1C1C',
+		 })
 	},
 
   render: function() {
@@ -45,17 +46,17 @@ var LoggedOutHome = React.createClass({
 
         <View style={styles.bottomContainer}>
 
-            <TouchableHighlight 
-            	onPress={this.loginPressed()}
+            <TouchableOpacity
+            	onPress={(event)=>{this.loginPressed()}}
             	style={styles.loginButton}>
             	<Text style={styles.whiteFont}>LOG IN</Text>
-            </TouchableHighlight>
+            </TouchableOpacity>
 
-            <TouchableHighlight 
-            	onPress={this.signupPressed}
+            <TouchableOpacity 
+            	onPress={(event)=>{this.signupPressed(event)}}
             	style={styles.signButton}>
             	<Text style={styles.whiteFont}>SIGN UP</Text>
-            </TouchableHighlight>
+            </TouchableOpacity>
 
         </View>
       </View>

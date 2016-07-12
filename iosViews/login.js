@@ -102,7 +102,7 @@ var Login = React.createClass({
 	      		<View style={styles.usernameField}>
 	      			<View style={styles.iconContainer}>
 	      				<Image style={styles.icon} source={require('../images/userIcon.png')} />
-	      			</View>a
+	      			</View>
       				<TextInput
       					style={[styles.textContainer, styles.whiteFont]}
       					autoCorrect={false}
