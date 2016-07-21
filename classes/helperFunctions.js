@@ -1,3 +1,5 @@
+import GLOBAL from '../Globals.js'
+
 (function (global, factory) {
       typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
       typeof define === 'function' && define.amd ? define(factory) :
@@ -21,7 +23,7 @@
 	function checkUsername(username, callback){
 	  	var res;
 
-		fetch('http://www.smithcoding.com:8888/api/checkUser/' + username)
+		fetch('http://' + GLOBAL.DATABASE + ':8888/api/checkUser/' + username)
 			//this sends back the response code
 		.then((response) => {
 			console.log('Fetch - Logging Response Status: ' + response.status);
@@ -35,7 +37,7 @@
 	// This future will check to see if the login credentials are valid
 	function checkLogin(username, password, callback){
 
-		fetch('http://www.smithcoding.com:8888/api/authenticate/' + username + '/' + password)
+		fetch('http://' + GLOBAL.DATABASE + ':8888/api/authenticate/' + username + '/' + password)
 		.then((response) => response.json())
 		.then((responseData) => {
 			console.log(responseData);

@@ -13,7 +13,7 @@ import {
   View
 } from 'react-native';
 
-var TabBar = require('../components/tabComponent');
+//var TabBar = require('../components/tabComponent');
 
 class homeFeed extends Component {
 
@@ -34,7 +34,7 @@ class homeFeed extends Component {
 		console.log("Tribe feed has token: " + this.state.token);
 
 		return(
-			<TabBar />
+			<View />
 		);
 	}
 }

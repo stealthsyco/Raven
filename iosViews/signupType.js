@@ -10,28 +10,21 @@ import {
   View
 } from 'react-native';
 
-var fanSignup = require('./fanSignup');
-var festivalSignup = require('./festivalSignup');
+var SignupType = React.createClass({
 
-class signupType extends Component {
-
-    fanPressed(){
+  onFanPressed(){
     this.props.navigator.push({
       title: 'FAN',
-          component: fanSignup,
-          titleTextColor: '#FFFFFF',
-          barTintColor: '#1C1C1C',
-    })
-  }
+      pageIdent: 'FanSignup',
+      titleTextColor: '#FFFFFF',
+      barTintColor: '#1C1C1C',
+    });
+  },
 
-    festivalPressed(){
-    this.props.navigator.push({
-      title: 'FESTIVAL',
-          component: festivalSignup,
-          titleTextColor: '#FFFFFF',
-          barTintColor: '#1C1C1C',
-    })
-  }
+  onFestivalPressed(){
+
+  },
+
   render() {
     return (
       <View style={styles.container}>
@@ -47,13 +40,13 @@ class signupType extends Component {
 
         <View style={styles.inputContainer}>
           <TouchableHighlight
-            onPress={this.fanPressed.bind(this)}
+            onPress={() => this.onFanPressed()}
             style={styles.fanButton}>
             <Text style={styles.whiteFont}>FAN</Text>
           </TouchableHighlight>
 
-          <TouchableHighlight 
-            onPress={this.festivalPressed.bind(this)}
+          <TouchableHighlight
+            onPress={() => this.onFestivalPressed()}
             style={styles.festivalButton}>
             <Text style={styles.whiteFont}>FESTIVAL</Text>
           </TouchableHighlight>
@@ -63,7 +56,7 @@ class signupType extends Component {
       </View>
     );
   }
-}
+});
 
 var styles = StyleSheet.create({
     container: {
@@ -114,4 +107,4 @@ var styles = StyleSheet.create({
   }
 });
 
-module.exports = signupType;
+module.exports = SignupType;

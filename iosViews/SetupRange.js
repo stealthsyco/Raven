@@ -1,6 +1,5 @@
 'use strict';
 
-import CheckBox from 'react-native-checkbox';
 import React, { Component } from 'react';
 import {
   AppRegistry,
@@ -8,6 +7,8 @@ import {
   TouchableOpacity,
   ActivityIndicatorIOS,
   AlertIOS,
+  Picker,
+  Item,
   StyleSheet,
   Image,
   Text,
@@ -16,11 +17,12 @@ import {
 } from 'react-native';
 
 var self;
-var SetupPref =  React.createClass({
+var SetupRange =  React.createClass({
 
 	getInitialState() {
 	  return{
       	token:'',
+        selectedRange: 'key0',
 	  };
 	},
 
@@ -36,20 +38,31 @@ var SetupPref =  React.createClass({
 
   },
 
-  onCheckboxClicked(){
+  onRangeChanged(selected){
+    this.setState({ selectedRange:selected })
   },
 
   onRightNavButtonClicked(){
-  		//AsyncStorage.setItem("aboutMe", self.state.aboutMe);
+  	if(self.state.aboutMe === ''){
+  		AlertIOS.alert(
+	        'About Empty',
+	        'Tell us something about yourself or use skip.',
+	        [
+	          {text: 'Cancel', onPress: () => console.log("cancel"), style:'cancel'}
+	        ],
+	      );
+  	} else {
+  		AsyncStorage.setItem("aboutMe", self.state.aboutMe);
 
   		self.props.navigator.push({
           title: 'Musical Preference',
-          pageIdent: 'SetupRange',
+          component: setupPref,
           rightButtonTitle: 'Next',
-          onRightButtonPress: () => { SetupRange.prototype.onRightNavButtonClicked() },
+          onRightButtonPress: () => { setupInfo.prototype.onRightNavButtonClicked() },
           titleTextColor: '#FFFFFF',
           barTintColor: '#1C1C1C',
         })
+  	}
   },
 
 	render(){
@@ -61,7 +74,7 @@ var SetupPref =  React.createClass({
 	        	<View style={[styles.contentContainer, {paddingTop: 70}]}>
 		        	<Image style={styles.icon} source={require('../images/stepColored.png')} />
 		        	<Image style={styles.icon} source={require('../images/stepColored.png')}/>
-		        	<Image style={styles.icon} source={require('../images/stepClear.png')} />
+		        	<Image style={styles.icon} source={require('../images/stepColored.png')} />
 		        	<Image style={styles.icon} source={require('../images/stepClear.png')} />
 		        </View>
 		        <View style={styles.contentContainer}>
@@ -71,17 +84,17 @@ var SetupPref =  React.createClass({
 
 
 	        <View style={styles.inputContainer}>
-            <View style={{paddingTop: 10}}>
-  	        	<CheckBox label="House" />
-              <CheckBox label="Drum n Bass" />
-              <CheckBox label="Dubstep" />
-              <CheckBox label="Trance" />
-              <CheckBox label="Rock n Roll" />
-              <CheckBox label="Electro" />
-              <CheckBox label="Um" />
-              <CheckBox label="Ya" />
-              <CheckBox label="This Works" />
-            </View>
+            <Picker
+            style={styles.picker}
+            selectedValue={this.state.key0}
+            onValueChange={(selected) => { this.onRangeChanged(selected) }}>
+            <Picker.Item label="100 miles" value="key0" />
+            <Picker.Item label="250 miles" value="key1" />
+            <Picker.Item label="500 miles" value="key2" />
+            <Picker.Item label="1000 miles" value="key3" />
+            <Picker.Item label="2000 miles" value="key4" />
+            <Picker.Item label="Worldwide" value="key5" />
+            </Picker>
 	       </View>
 
 	       <View style={styles.bottomContainer}>
@@ -97,6 +110,9 @@ var styles = StyleSheet.create({
     backgroundColor: '#1C1C1C',
     flexDirection: 'column'
   },
+  picker: {
+  width: 100,
+},
   contentContainer: {
   	justifyContent: 'center',
   	alignItems: 'center',
@@ -141,4 +157,4 @@ var styles = StyleSheet.create({
 
 
 
-module.exports = SetupPref;
+module.exports = SetupRange;

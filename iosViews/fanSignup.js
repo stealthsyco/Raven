@@ -1,18 +1,22 @@
-/* fanSignup.js 
+/* fanSignup.js
    Developed by: Kyle Smith - 4/1/16
 */
 
 'use strict';
 
+//import PureComponent from 'react-pure-render/mixin';
+import Keyboard from 'Keyboard';
 import React, { Component } from 'react';
 import {
   AppRegistry,
+  Dimensions,
   TouchableHighlight,
   TouchableOpacity,
   ActivityIndicatorIOS,
   AlertIOS,
   DatePickerIOS,
   CustomActionSheet,
+  Picker,
   StyleSheet,
   Text,
   TextInput,
@@ -29,11 +33,12 @@ var monthNames = ["January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"
 ];
 
-class fanSignup extends Component {
+var FanSignup = React.createClass({
 
-  constructor(props) {
-    super(props);
-    this.state = {
+  getInitialState(){
+    return{
+      visibleHeight: Dimensions.get('window').height,
+      keyboardSpace: 0,
       username: '',
       email: '',
       first: '',
@@ -41,17 +46,38 @@ class fanSignup extends Component {
       password: '',
       repeat: '',
       dob: '',
+      carrier: '',
+      mobile: '',
       date: new Date('2005-01-01'),
       showDatePicker: false,
+      showCarrierPicker: false,
       emailValid: false,
       usernameValid: false,
       firstValid: false,
       lastValid: false,
       passwordValid: false,
       dateValid: false,
-      usernameCheckValid: false
+      usernameCheckValid: false,
     };
-  }
+  },
+
+  componentWillMount(){
+    Keyboard.addListener('keyboardWillShow', (event) => this.keyboardWillShow(event))
+    Keyboard.addListener('keyboardWillHide', (event) => this.keyboardWillHide(event))
+  },
+
+  keyboardWillShow(event){
+    console.log("keyboard showing");
+    console.log(event.endCoordinates.height)
+    let openKeyboard = Dimensions.get('window').height - event.endCoordinates.height
+    this.setState({ keyboardSpace: event.endCoordinates.height })
+    //this.setState({ visibleHeight: openKeyboard })
+  },
+
+  keyboardWillHide(event){
+    this.setState({ keyboardSpace: 0 })
+    //this.setState({ visibleHeight: Dimensions.get('window').height })
+  },
 
   //When the date changes in the date picker, convert the date into a string.
   //Also, update the date as it gets set.
@@ -64,12 +90,12 @@ class fanSignup extends Component {
     else
       this.setState({ dateValid: false });
     console.log(this.state.dateValid);
-  }
+  },
 
   /* When the signup button is pressed, this checks to make sure all of the required fields are
      valid. It then makes a POST request to the server.
      **Functionality to move to the next page needs to be added** */
-  signPressed(){
+  onSignPressed(){
     if(this.state.emailValid && this.state.usernameCheckValid && this.state.firstValid && this.state.lastValid && this.state.passwordValid && this.state.dateValid){
       var obj = {
         method: 'POST',
@@ -115,17 +141,17 @@ class fanSignup extends Component {
       console.log('First: ' + this.state.firstValid);
       console.log('Last: ' + this.state.lastValid);
     }
-  }
+  },
 
   /* Updates the username and checks it against the server to see if it has been created before.
      It also makes sure the length of the username is a minimum of 8. This function uses a callback from the function written in helperFunctions.js. After the function happens, a closure is needed to keep up with the state while the asyncronous function works its magic. self handles this operation. */
-  onUsernameChanged(event){
-    this.setState({ username: event.nativeEvent.text });
-    this.setState({ usernameValid: validator.isLength( event.nativeEvent.text, {min:8})});
+  onUsernameChanged(updateUsername){
+    this.setState({ username: updateUsername });
+    this.setState({ usernameValid: validator.isLength( updateUsername, {min:8})});
     //this is how to handle async function
     if(this.state.usernameValid){
       var self = this;
-      helperFunctions.checkUsername(event.nativeEvent.text, function(response){
+      helperFunctions.checkUsername(updateUsername, function(response){
         if(response == 200) {
           self.setState({ usernameCheckValid: true });
         } else {
@@ -135,47 +161,53 @@ class fanSignup extends Component {
 
       this.setState({ usernameCheckValid: self.usernameCheckValid });
     }
-  }
+  },
 
   // Setter for email changing
-  onEmailChanged(event){
-    this.setState({ email: event.nativeEvent.text });
-    this.setState({ emailValid: validator.isEmail( event.nativeEvent.text )});
-  }
+  onEmailChanged(updateEmail){
+    this.setState({ email: updateEmail });
+    this.setState({ emailValid: validator.isEmail( updateEmail )});
+  },
 
   // Setter for first changing
-  onFirstChanged(event){
-    this.setState({ first: event.nativeEvent.text });
-    this.setState({ firstValid: validator.isAlpha( event.nativeEvent.text )});
-  }
+  onFirstChanged(updateFirst){
+    this.setState({ first: updateFirst });
+    this.setState({ firstValid: validator.isAlpha( updateFirst )});
+  },
   // Setter for last changing
-  onLastChanged(event){
-    this.setState({ last: event.nativeEvent.text });
-    this.setState({ lastValid: validator.isAlpha( event.nativeEvent.text )});
-  }
+  onLastChanged(updateLast){
+    this.setState({ last: updateLast });
+    this.setState({ lastValid: validator.isAlpha( updateLast )});
+  },
 
   // Setter for password changing. Also makes sure the password is === to repeat and that it is at least 8 characters long.
-  onPasswordChanged(event){
-    this.setState({ password: event.nativeEvent.text });
-    if(event.nativeEvent.text.length > 7 && event.nativeEvent.text == this.state.repeat)
+  onPasswordChanged(updatePassword){
+    this.setState({ password: updatePassword });
+    if(updatePassword.length > 7 && updatePassword == this.state.repeat)
       this.setState({ passwordValid: true });
     else
       this.setState({ passwordValid: false });
-  }
+  },
 
   // Setter for repeat password changing. Same story as password
-  onRepeatChanged(event){
-    this.setState({ repeat: event.nativeEvent.text });
-    console.log(event.nativeEvent.text);
+  onRepeatChanged(updateRepeat){
+    this.setState({ repeat: updateRepeat });
+    console.log(updateRepeat);
     console.log(this.state.password);
-    if(event.nativeEvent.text.length > 7 && this.state.password === event.nativeEvent.text)
+    if(updateRepeat.length > 7 && this.state.password === updateRepeat)
       this.setState({ passwordValid: true });
     else
       this.setState({ passwordValid: false });
-  }
+  },
+
+  onMobileChanged(updateMobile){
+    this.setState({ mobile: updateMobile });
+  },
 
   render() {
 
+    const keyboardSpacer =  110 - (this.state.keyboardSpace / 3)
+    console.log(keyboardSpacer);
     //There is a problem with DatePickerIOS which causes two warnings, but the functionality still works.
     //This problem needs to be fixed by Facebook, but is not hindering progress.
     console.disableYellowBox = true;
@@ -183,15 +215,39 @@ class fanSignup extends Component {
     //If it is false, the empty view is called. If it is true, the date picker
     //is shown.
     var showDatePicker = this.state.showDatePicker ?
-        <DatePickerModal modalVisible={this.state.modalVisible} 
+        <DatePickerModal modalVisible={this.state.modalVisible}
           onCancel={() => this.setState({showDatePicker:false})}>
           {showDatePicker}
           {dismissKeyboard()}
           <View style={styles.datePickerContainer}>
-            <DatePickerIOS 
+            <DatePickerIOS
               mode="date"
-              date={this.state.date} 
-              onDateChange={this.onDateChange.bind(this)} />
+              date={this.state.date}
+              onDateChange={(date) => this.onDateChange(date)} />
+          </View>
+        </DatePickerModal> : <View />
+
+    var showCarrierPicker = this.state.showCarrierPicker ?
+        <DatePickerModal modalVisible={this.state.modalVisible}
+          onCancel={() => this.setState({showCarrierPicker:false})}>
+          {showCarrierPicker}
+          {dismissKeyboard()}
+          <View style={styles.datePickerContainer}>
+          <Picker
+            selectedValue={this.state.carrier}
+            onValueChange={(carrier) => this.setState({carrier})}>
+            <Picker.Item label="AT&T" value="AT&T" />
+            <Picker.Item label="Verizon" value="Verizon" />
+            <Picker.Item label="C Spire" value="C Spire" />
+            <Picker.Item label="Boost Mobile" value="Boost Mobile" />
+            <Picker.Item label="Project Fi" value="Project Fi" />
+            <Picker.Item label="T-Mobile" value="T-Mobile" />
+            <Picker.Item label="Sprint" value="Sprint" />
+            <Picker.Item label="U.S Cellular" value="U.S Cellular" />
+            <Picker.Item label="Virgin Mobile" value="Virgin Mobile" />
+            <Picker.Item label="Alltel" value="Alltel" />
+            <Picker.Item label="Cricket Wireless" value="Cricket Wireless" />
+            </Picker>
           </View>
         </DatePickerModal> : <View />
 
@@ -231,12 +287,11 @@ class fanSignup extends Component {
         repeatField = styles.validField;
 
     return (
-      <View style={styles.container}>
-        <View style={styles.topSpacer} />
+      <View style={[styles.container, {height: this.state.visibleHeight}]}>
 
-        <View style={styles.inputContainer}>
+        <View style={[styles.inputContainer, { paddingTop: keyboardSpacer }]}>
 
-          <View style={usernameField}> 
+          <View style={usernameField}>
               <View style={styles.iconContainer} />
               <TextInput
                 style={[styles.textContainer, styles.whiteFont]}
@@ -245,8 +300,9 @@ class fanSignup extends Component {
                 autoCapitalize='none'
                 placeholder="Username"
                 placeholderTextColor="#6F6F6F"
-                onChange={this.onUsernameChanged.bind(this)}
-                value={this.state.username}/>
+                value={this.state.username}
+                onChangeText={(updateUsername) => this.onUsernameChanged(updateUsername)}
+                />
           </View>
 
           <View style={emailField}>
@@ -259,20 +315,20 @@ class fanSignup extends Component {
                 placeholder="Email"
                 placeholderTextColor="#6F6F6F"
                 value={this.state.email}
-                onChange={this.onEmailChanged.bind(this)} />
+                onChangeText={(updateEmail) => this.onEmailChanged(updateEmail)} />
           </View>
 
           <View style={styles.nameContainer}>
             <View style={styles.iconContainer} />
               <View style={styles.textContainer}>
                 <TextInput
-                  style={[styles.firstLastField, styles.whiteFont]}
+                  style={[styles.firstLastField, styles.whiteFont, {paddingLeft:1}]}
                   autoCorrect={false}
                   autoCapitalize='none'
                   placeholder="First"
                   placeholderTextColor="#6F6F6F"
                   value={this.state.first}
-                  onChange={this.onFirstChanged.bind(this)} />
+                  onChangeText={(updateFirst) => this.onFirstChanged(updateFirst)} />
                 <TextInput
                   style={[styles.firstLastField, styles.whiteFont]}
                   autoCorrect={false}
@@ -280,7 +336,7 @@ class fanSignup extends Component {
                   placeholder="Last"
                   placeholderTextColor="#6F6F6F"
                   value={this.state.last}
-                  onChange={this.onLastChanged.bind(this)} />
+                  onChangeText={(updateLast) => this.onLastChanged(updateLast)} />
               </View>
           </View>
 
@@ -294,7 +350,7 @@ class fanSignup extends Component {
                 placeholder="Password"
                 placeholderTextColor="#6F6F6F"
                 value={this.state.password}
-                onChange={this.onPasswordChanged.bind(this)} />
+                onChangeText={(updatePassword) => this.onPasswordChanged(updatePassword)} />
           </View>
 
           <View style={repeatField}>
@@ -307,7 +363,7 @@ class fanSignup extends Component {
                 placeholder="Repeat Password"
                 placeholderTextColor="#6F6F6F"
                 value={this.state.repeat}
-                onChange={this.onRepeatChanged.bind(this)} />
+                onChangeText={(updateRepeat) => this.onRepeatChanged(updateRepeat)} />
           </View>
 
           <View style={styles.defaultField}>
@@ -321,8 +377,32 @@ class fanSignup extends Component {
             {showDatePicker}
           </View>
 
-          <TouchableHighlight 
-            onPress={this.signPressed.bind(this)}
+          <View style={styles.nameContainer}>
+            <View style={styles.iconContainer} />
+              <View style={styles.textContainer}>
+                <TextInput
+                  style={[styles.firstLastField, styles.whiteFont]}
+                  keyboardType='numeric'
+                  placeholder="Mobile Number"
+                  placeholderTextColor="#6F6F6F"
+                  maxLength={10}
+                  value={this.state.mobile}
+                  onChangeText={(updateMobile) => this.onMobileChanged(updateMobile)} />
+              </View>
+          </View>
+
+          <View style={styles.defaultField}>
+            <View style={styles.iconContainer} />
+            <TouchableOpacity
+              style={styles.textContainer}
+              onPress={() => this.setState({showCarrierPicker:true})}>
+              <Text style={[styles.whiteFont, {textAlign: 'center'}]}>{this.state.carrier}</Text>
+              </TouchableOpacity>
+            {showCarrierPicker}
+          </View>
+
+          <TouchableHighlight
+            onPress={() => this.onSignPressed()}
             style={styles.signButton}>
             <Text style={styles.whiteFont}>SIGN UP</Text>
           </TouchableHighlight>
@@ -333,19 +413,18 @@ class fanSignup extends Component {
       </View>
     );
   }
-}
+});
 
 var styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: '#1C1C1C',
     flexDirection: 'column'
   },
   topSpacer: {
-    flex: .25
+    flex: .20
   },
   inputContainer: {
-    flex: .50,
+    flex: .85,
     backgroundColor: '#1C1C1C',
     marginLeft: 20,
     marginRight: 20
@@ -355,21 +434,21 @@ var styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#1C1C1C',
     backgroundColor: "#2C2C2C",
-    flexDirection: 'row'   
+    flexDirection: 'row'
   },
   invalidField: {
     flex: 1,
     borderWidth: 1,
     borderColor: '#FF0000',
     backgroundColor: "#2C2C2C",
-    flexDirection: 'row'   
+    flexDirection: 'row'
   },
   validField: {
     flex: 1,
     borderWidth: 1,
     borderColor: '#00FF00',
     backgroundColor: "#2C2C2C",
-    flexDirection: 'row'   
+    flexDirection: 'row'
   },
   firstLastField: {
     flex: 1,
@@ -407,7 +486,7 @@ var styles = StyleSheet.create({
     height: 200
   },
   bottomSpacer: {
-    flex: .25
+    flex: .15
   },
   whiteFont: {
     color: '#FFFFFF',
@@ -416,4 +495,4 @@ var styles = StyleSheet.create({
   }
 });
 
-module.exports = fanSignup;
+module.exports = FanSignup;

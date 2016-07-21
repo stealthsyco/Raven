@@ -4,7 +4,8 @@ import React, { Component } from 'react';
 import {
   AppRegistry,
   AsyncStorage,
-  TouchableHighlight,
+  AlertIOS,
+  TouchableOpacity,
   ActivityIndicatorIOS,
   StyleSheet,
   Image,
@@ -13,87 +14,72 @@ import {
   View
 } from 'react-native';
 
-var helperFunctions = require('../classes/helperFunctions');
-// var setupInfo = require('./setupInfo.js');
-// var home = require('./home');
+import helperFunctions from '../classes/helperFunctions.js'
 
 //Async-Storage key
 var storageKey = '@token:key';
 
 var Login = React.createClass({
 
-  getInitialState: function() {
+  getInitialState() {
     return {
       username: '',
       password: '',
-      token: ''
+      token: '',
+      showErrorMessage: false,
     };
   },
 
-  saveToken: function(value, username) {
+  saveToken(value, username) {
     AsyncStorage.setItem("jwt", value);
     AsyncStorage.setItem("username", username);
     //this.setState({ token: value });
     this.state.token = value;
   },
 
-  // Setter for username field
-	onUsernameChanged: function(event){
-		//this.setState({ username: event.nativeEvent.text });
-    this.state.username = event.nativeEvent.text;
-	},
-
-  // Setter for password field
-	onPasswordChanged: function(event){
-		//this.setState({ password: event.nativeEvent.text });
-    this.state.password = event.nativeEvent.text;
-	},
+  invalidPassword(){
+    this.setState({ showErrorMessage:true });
+  },
 
   // Handler for login button
-  onLoginPressed: function(){
+  onLoginPressed(){
+    console.log("we made it boys");
     var self = this;
       helperFunctions.checkLogin(this.state.username, this.state.password, function(response){
         //our response holds our token, we need to pass this along to different pages...
         if(response.status === 200) {
+          self.state.password = '';
+          self.state.showErrorMessage = false;
           self.state.token = response.token;
           self.saveToken(response.token, self.state.username);
 
           if(response.firstlogin == true && response.setup == 0){
             self.props.navigator.push({
               title: 'About You',
-              component: setupInfo,
-              rightButtonTitle: 'Next',
-
+              pageIdent: 'SetupInfo',
               onRightButtonPress: () => { setupInfo.prototype.onRightNavButtonClicked() },
               titleTextColor: '#FFFFFF',
               barTintColor: '#1C1C1C',
             })
-          }
-          if(response.firstlogin == true && response.setup == 1){
-
-          }
-          if(response.firstlogin == true && response.setup == 2){
-
-          }
-          if(response.firstlogin == true && response.setup == 3){
-
-          }
-
-          else {
+          } else {
             self.props.navigator.push({
               title: 'TRIBE FEED',
-              component: home,
+              pageIdent: 'Home',
               titleTextColor: '#FFFFFF',
               barTintColor: '#1C1C1C',
           })
           }
         } else {
-          //show error message
+          self.invalidPassword();
         }
       });
   },
 
-	render: function() {
+	render() {
+    //TODO: Create a center text box so the text wraps
+    var showErrorMessage = this.state.showErrorMessage ?
+          <Text style={styles.errorStyle}>Your username or password is incorrect. Please try again.</Text> : <View />
+
 	    return (
 	      <View style={styles.container}>
 	      	<View style={styles.topSpacer} />
@@ -110,7 +96,7 @@ var Login = React.createClass({
       					placeholder="Username"
       					placeholderTextColor="#6F6F6F"
       					value={this.state.username}
-      					onChange={this.onUsernameChanged()} />
+      					onChangeText={(username) => this.setState({username})} />
 	      		</View>
 
 	      		<View style={styles.passwordField}>
@@ -124,18 +110,20 @@ var Login = React.createClass({
 	      			autoCapitalize='none'
 	  					placeholder="Password"
 	  					placeholderTextColor="#6F6F6F"
-	  					value={this.state.password} 
-	  					onChange={this.onPasswordChanged()} />
+	  					value={this.state.password}
+	  					onChangeText={(password) => this.setState({password})} />
 	      		</View>
 
-            <TouchableHighlight
+            <TouchableOpacity
             	style={styles.loginButton}
-              onPress={this.onLoginPressed()}>
+              onPress={(event)=>{this.onLoginPressed()}}>
             	<Text style={styles.whiteFont}> LOG IN </Text>
-            </TouchableHighlight>
+            </TouchableOpacity>
 	      	</View>
 
-	      	<View style={styles.bottomSpacer} />
+	      	<View style={styles.bottomSpacer}>
+            {showErrorMessage}
+          </View>
 	      </View>
 	    );
   	}
@@ -154,7 +142,8 @@ var styles = StyleSheet.create({
   	flex: .24,
   	backgroundColor: '#3C3C3C',
   	marginLeft: 20,
-  	marginRight: 20
+  	marginRight: 20,
+    marginBottom: 20,
   },
   usernameField: {
   	flex: 1,
@@ -188,6 +177,12 @@ var styles = StyleSheet.create({
   },
   bottomSpacer: {
   	flex: .51
+  },
+  errorStyle: {
+    color: 'red',
+    fontFamily: 'Verdana',
+    fontSize: 12,
+    textAlign: 'center',
   },
   whiteFont: {
   	color: '#FFFFFF',

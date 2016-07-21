@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import {
   AppRegistry,
   AsyncStorage,
-  TouchableHighlight,
+  TouchableOpacity,
   ActivityIndicatorIOS,
   AlertIOS,
   StyleSheet,
@@ -14,34 +14,29 @@ import {
   View
 } from 'react-native';
 
-var setupPref = require('./setupPref.js');
+//var setupPref = require('./setupPref.js');
 var self;
 
 
-class setupInfo extends Component {
+var SetupInfo =  React.createClass({
 
-	constructor(props) {
-	  super(props);
-	  this.state = {
+	getInitialState() {
+	  return{
 	  	aboutMe:'',
-      	token:'',
-	  };
-	}
+      token:'',
+    };
+	},
 
 	componentDidMount() {
 		self = this;
 	    AsyncStorage.getItem("jwt").then((value) => {
 	        this.setState({"token": value});
 	    }).done();
-	}
+	},
 
-  onAboutChanged(event){
-    this.setState({ aboutMe: event.nativeEvent.text });
-  }
-
-  skipClicked(){
-
-  }
+  onSkipClicked(){
+    //TODO: Manage what happens when skip button is pressed
+  },
 
   onRightNavButtonClicked(){
   	if(self.state.aboutMe === ''){
@@ -58,15 +53,15 @@ class setupInfo extends Component {
   		self.props.navigator.push({
           title: 'Musical Preference',
           backButtonTitle: 'About',
-          component: setupPref,
+          pageIdent: 'SetupPref',
           rightButtonTitle: 'Next',
 
-          onRightButtonPress: () => { setupPref.prototype.onRightNavButtonClicked() },
+          onRightButtonPress: () => { SetupPref.prototype.onRightNavButtonClicked() },
           titleTextColor: '#FFFFFF',
           barTintColor: '#1C1C1C',
         })
   	}
-  }
+  },
 
 	render(){
 
@@ -80,7 +75,7 @@ class setupInfo extends Component {
 		        	<Image style={styles.icon} source={require('../images/stepClear.png')} />
 		        </View>
 		        <View style={styles.contentContainer}>
-		        	<Text style={styles.whiteFont}>Tell us a little about yourself.</Text>	
+		        	<Text style={styles.whiteFont}>Tell us a little about yourself.</Text>
 		        </View>
 	         </View>
 
@@ -93,22 +88,22 @@ class setupInfo extends Component {
 	                multiline={true}
 	                maxLength={500}
 	                autoCapitalize='none'
-	                onChange={this.onAboutChanged.bind(this)}
+	                onChangeText={(aboutMe) => this.setState({aboutMe})}
 	                value={this.state.aboutMe} />
 	       </View>
 
 	       <View style={styles.bottomContainer}>
-	       		<TouchableHighlight
-			        onPress={this.skipClicked.bind(this)}>
+	       		<TouchableOpacity
+			        onPress={() => {this.onSkipClicked()}}>
 			        <View>
 			          <Text style={styles.secondaryFont}>SKIP >></Text>
 			        </View>
-			      </TouchableHighlight>  
+			      </TouchableOpacity>
 	       </View>
 	      </View>
 		);
 	}
-}
+});
 
 var styles = StyleSheet.create({
   container: {
@@ -159,4 +154,4 @@ var styles = StyleSheet.create({
 
 
 
-module.exports = setupInfo;
+module.exports = SetupInfo;

@@ -12,30 +12,27 @@ import {
   View
 } from 'react-native';
 
-//var login = require('./login');
-var signupType = require('./signupType');
-
 var LoggedOutHome = React.createClass({
 
-	loginPressed(){
-		    this.props.navigator.push({
-		    title: 'LOG IN',
-        pageIdent: 'Login',
-        titleTextColor: '#FFFFFF',
-        barTintColor: '#1C1C1C',
-		  });
+	onLoginPressed(){
+	  this.props.navigator.push({
+	    title: 'LOG IN',
+      pageIdent: 'Login',
+      titleTextColor: '#FFFFFF',
+      barTintColor: '#1C1C1C',
+	  });
 	},
 
-	signupPressed()  {
-		 this.props.navigator.push({
-		   title: 'SIGN UP',
-           component: signupType,
-           titleTextColor: '#FFFFFF',
-           barTintColor: '#1C1C1C',
-		 })
+	onSignupPressed()  {
+		this.props.navigator.push({
+  		title: 'SIGN UP',
+      pageIdent: 'SignupType',
+      titleTextColor: '#FFFFFF',
+      barTintColor: '#1C1C1C',
+		})
 	},
 
-  render: function() {
+  render() {
     return (
       <View style={styles.container}>
         <View style={styles.topContainer}>
@@ -47,13 +44,13 @@ var LoggedOutHome = React.createClass({
         <View style={styles.bottomContainer}>
 
             <TouchableOpacity
-            	onPress={(event)=>{this.loginPressed()}}
+            	onPress={(event)=>{this.onLoginPressed()}}
             	style={styles.loginButton}>
             	<Text style={styles.whiteFont}>LOG IN</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity 
-            	onPress={(event)=>{this.signupPressed(event)}}
+            <TouchableOpacity
+            	onPress={(event)=>{this.onSignupPressed()}}
             	style={styles.signButton}>
             	<Text style={styles.whiteFont}>SIGN UP</Text>
             </TouchableOpacity>
