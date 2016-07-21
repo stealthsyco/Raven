@@ -17,6 +17,8 @@ import {
   DatePickerIOS,
   CustomActionSheet,
   Picker,
+  ScrollView,
+  Modal,
   StyleSheet,
   Text,
   TextInput,
@@ -39,24 +41,24 @@ var FanSignup = React.createClass({
     return{
       visibleHeight: Dimensions.get('window').height,
       keyboardSpace: 0,
+      showScrollView: View,
       username: '',
       email: '',
       first: '',
       last: '',
       password: '',
       repeat: '',
-      dob: '',
       carrier: '',
       mobile: '',
-      date: new Date('2005-01-01'),
-      showDatePicker: false,
+      showVerifyForm: false,
       showCarrierPicker: false,
       emailValid: false,
       usernameValid: false,
       firstValid: false,
       lastValid: false,
       passwordValid: false,
-      dateValid: false,
+      mobileValid: false,
+      carrierValid: false,
       usernameCheckValid: false,
     };
   },
@@ -67,14 +69,13 @@ var FanSignup = React.createClass({
   },
 
   keyboardWillShow(event){
-    console.log("keyboard showing");
-    console.log(event.endCoordinates.height)
-    let openKeyboard = Dimensions.get('window').height - event.endCoordinates.height
+    this.setState({ showScrollView: ScrollView })
     this.setState({ keyboardSpace: event.endCoordinates.height })
     //this.setState({ visibleHeight: openKeyboard })
   },
 
   keyboardWillHide(event){
+    this.setState({ showScrollView: View })
     this.setState({ keyboardSpace: 0 })
     //this.setState({ visibleHeight: Dimensions.get('window').height })
   },
@@ -96,6 +97,7 @@ var FanSignup = React.createClass({
      valid. It then makes a POST request to the server.
      **Functionality to move to the next page needs to be added** */
   onSignPressed(){
+    this.setState({showVerifyForm: true})
     if(this.state.emailValid && this.state.usernameCheckValid && this.state.firstValid && this.state.lastValid && this.state.passwordValid && this.state.dateValid){
       var obj = {
         method: 'POST',
@@ -214,42 +216,35 @@ var FanSignup = React.createClass({
     //This type of fuction has two options, one with true and one with false.
     //If it is false, the empty view is called. If it is true, the date picker
     //is shown.
-    var showDatePicker = this.state.showDatePicker ?
-        <DatePickerModal modalVisible={this.state.modalVisible}
-          onCancel={() => this.setState({showDatePicker:false})}>
-          {showDatePicker}
-          {dismissKeyboard()}
-          <View style={styles.datePickerContainer}>
-            <DatePickerIOS
-              mode="date"
-              date={this.state.date}
-              onDateChange={(date) => this.onDateChange(date)} />
-          </View>
-        </DatePickerModal> : <View />
-
+    var showVerifyForm = this.state.showVerifyForm ?
+      <View style={styles.verifyTextForm}>
+        <Modal>
+        {showVerifyForm}
+        </Modal>
+      </View> : <View />
     var showCarrierPicker = this.state.showCarrierPicker ?
-        <DatePickerModal modalVisible={this.state.modalVisible}
-          onCancel={() => this.setState({showCarrierPicker:false})}>
-          {showCarrierPicker}
-          {dismissKeyboard()}
-          <View style={styles.datePickerContainer}>
-          <Picker
-            selectedValue={this.state.carrier}
-            onValueChange={(carrier) => this.setState({carrier})}>
-            <Picker.Item label="AT&T" value="AT&T" />
-            <Picker.Item label="Verizon" value="Verizon" />
-            <Picker.Item label="C Spire" value="C Spire" />
-            <Picker.Item label="Boost Mobile" value="Boost Mobile" />
-            <Picker.Item label="Project Fi" value="Project Fi" />
-            <Picker.Item label="T-Mobile" value="T-Mobile" />
-            <Picker.Item label="Sprint" value="Sprint" />
-            <Picker.Item label="U.S Cellular" value="U.S Cellular" />
-            <Picker.Item label="Virgin Mobile" value="Virgin Mobile" />
-            <Picker.Item label="Alltel" value="Alltel" />
-            <Picker.Item label="Cricket Wireless" value="Cricket Wireless" />
-            </Picker>
-          </View>
-        </DatePickerModal> : <View />
+      <DatePickerModal modalVisible={this.state.modalVisible}
+        onCancel={() => this.setState({showCarrierPicker:false})}>
+        {showCarrierPicker}
+        {dismissKeyboard()}
+        <View style={styles.datePickerContainer}>
+        <Picker
+          selectedValue={this.state.carrier}
+          onValueChange={(carrier) => this.setState({carrier})}>
+          <Picker.Item label="AT&T" value="AT&T" />
+          <Picker.Item label="Verizon" value="Verizon" />
+          <Picker.Item label="C Spire" value="C Spire" />
+          <Picker.Item label="Boost Mobile" value="Boost Mobile" />
+          <Picker.Item label="Project Fi" value="Project Fi" />
+          <Picker.Item label="T-Mobile" value="T-Mobile" />
+          <Picker.Item label="Sprint" value="Sprint" />
+          <Picker.Item label="U.S Cellular" value="U.S Cellular" />
+          <Picker.Item label="Virgin Mobile" value="Virgin Mobile" />
+          <Picker.Item label="Alltel" value="Alltel" />
+          <Picker.Item label="Cricket Wireless" value="Cricket Wireless" />
+          </Picker>
+        </View>
+      </DatePickerModal> : <View />
 
     //Each of if statements below change the color of the border around their relative fields.
     var usernameField;
@@ -286,11 +281,18 @@ var FanSignup = React.createClass({
       else if(this.state.password == this.state.repeat && this.state.repeat.length > 7)
         repeatField = styles.validField;
 
+    var changeView = this.state.showScrollView;
     return (
-      <View style={[styles.container, {height: this.state.visibleHeight}]}>
-
+      <View style={styles.container}>
+        <Modal
+            transparent={true}
+            visible={this.state.showVerifyForm}>
+            <View style={styles.verifyContainer}>
+              <View style={styles.verifyTextForm} />
+            </View>
+        </Modal>
         <View style={[styles.inputContainer, { paddingTop: keyboardSpacer }]}>
-
+        <ScrollView contentContainerStyle={styles.inputContainer}>
           <View style={usernameField}>
               <View style={styles.iconContainer} />
               <TextInput
@@ -366,17 +368,6 @@ var FanSignup = React.createClass({
                 onChangeText={(updateRepeat) => this.onRepeatChanged(updateRepeat)} />
           </View>
 
-          <View style={styles.defaultField}>
-            <View style={styles.iconContainer} />
-            <TextInput
-              style={[styles.textContainer, styles.whiteFont]}
-              placeholder="Date of Birth"
-              placeholderTextColor="#6F6F6F"
-              value={this.state.dob}
-              onFocus={() => this.setState({showDatePicker:true})}/>
-            {showDatePicker}
-          </View>
-
           <View style={styles.nameContainer}>
             <View style={styles.iconContainer} />
               <View style={styles.textContainer}>
@@ -407,6 +398,7 @@ var FanSignup = React.createClass({
             <Text style={styles.whiteFont}>SIGN UP</Text>
           </TouchableHighlight>
 
+        </ScrollView>
         </View>
 
         <View style={styles.bottomSpacer} />
@@ -417,6 +409,7 @@ var FanSignup = React.createClass({
 
 var styles = StyleSheet.create({
   container: {
+    flex: 1,
     backgroundColor: '#1C1C1C',
     flexDirection: 'column'
   },
@@ -424,7 +417,7 @@ var styles = StyleSheet.create({
     flex: .20
   },
   inputContainer: {
-    flex: .85,
+    flex: 3,
     backgroundColor: '#1C1C1C',
     marginLeft: 20,
     marginRight: 20
@@ -480,18 +473,24 @@ var styles = StyleSheet.create({
     flex: .85,
     flexDirection: 'row'
   },
-  datePickerContainer: {
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'flex-end',
-    height: 200
-  },
   bottomSpacer: {
-    flex: .15
+    flex: 1
   },
   whiteFont: {
     color: '#FFFFFF',
     fontFamily: 'Verdana',
     fontSize: 15
+  },
+  verifyContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  verifyTextForm: {
+    backgroundColor: 'white',
+    height: 300,
+    width: 330
   }
 });
 
