@@ -87,7 +87,7 @@ var Login = React.createClass({
 
 	      		<View style={styles.usernameField}>
 	      			<View style={styles.iconContainer}>
-	      				<Image style={styles.icon} source={require('../images/userIcon.png')} />
+	      				<Image style={styles.icon} source={require('../images/user.png')} />
 	      			</View>
       				<TextInput
       					style={[styles.textContainer, styles.whiteFont]}
@@ -101,7 +101,7 @@ var Login = React.createClass({
 
 	      		<View style={styles.passwordField}>
 	      			<View style={styles.iconContainer}>
-	      				<Image style={styles.icon} source={require('../images/passIcon.png')} />
+	      				<Image style={styles.icon} source={require('../images/pass.png')} />
 	      			</View>
 	  				<TextInput
 	  					password={true}

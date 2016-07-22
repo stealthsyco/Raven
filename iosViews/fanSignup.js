@@ -21,6 +21,7 @@ import {
   Picker,
   ScrollView,
   Modal,
+  Image,
   StyleSheet,
   Text,
   TextInput,
@@ -295,7 +296,9 @@ var FanSignup = React.createClass({
         </Modal>
         <View style={[styles.inputContainer, { paddingTop: keyboardSpacer }]}>
           <View style={usernameField}>
-              <View style={styles.iconContainer} />
+              <View style={styles.iconContainer}>
+                <Image style={styles.icon} source={require('../images/user.png')}/>
+              </View>
               <TextInput
                 style={[styles.textContainer, styles.whiteFont]}
                 autoCorrect={false}
@@ -309,7 +312,9 @@ var FanSignup = React.createClass({
           </View>
 
           <View style={emailField}>
-            <View style={styles.iconContainer} />
+          <View style={styles.iconContainer}>
+            <Image style={styles.icon} source={require('../images/email.png')}/>
+          </View>
               <TextInput
                 ref='email'
                 style={[styles.textContainer, styles.whiteFont]}
@@ -323,7 +328,9 @@ var FanSignup = React.createClass({
           </View>
 
           <View style={passwordField}>
-            <View style={styles.iconContainer} />
+          <View style={styles.iconContainer}>
+            <Image style={styles.icon} source={require('../images/pass.png')}/>
+          </View>
               <TextInput
                 style={[styles.textContainer, styles.whiteFont]}
                 password={true}
@@ -336,7 +343,9 @@ var FanSignup = React.createClass({
           </View>
 
           <View style={repeatField}>
-            <View style={styles.iconContainer} />
+          <View style={styles.iconContainer}>
+            <Image style={styles.icon} source={require('../images/pass.png')}/>
+          </View>
               <TextInput
                 style={[styles.textContainer, styles.whiteFont]}
                 password={true}
@@ -349,7 +358,9 @@ var FanSignup = React.createClass({
           </View>
 
           <View style={styles.nameContainer}>
-            <View style={styles.iconContainer} />
+          <View style={styles.iconContainer}>
+            <Image style={styles.icon} source={require('../images/phone.png')}/>
+          </View>
               <View style={styles.textContainer}>
                 <TextInput
                   style={[{flex: 1}, styles.whiteFont]}
@@ -363,7 +374,9 @@ var FanSignup = React.createClass({
           </View>
 
           <View style={styles.defaultField}>
-            <View style={styles.iconContainer} />
+          <View style={styles.iconContainer}>
+            <Image style={styles.icon} source={require('../images/carrier.png')}/>
+          </View>
             <TouchableOpacity
               style={styles.textContainer}
               onPress={() => this.setState({showCarrierPicker:true})}>
