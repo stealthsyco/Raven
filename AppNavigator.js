@@ -148,7 +148,6 @@ class AppNavigator extends Component {
 
   _renderScreen(route, navigator){
     var globalNavigatorProps = {navigator}
-    console.log("something");
     //NOTE: the globalNavigatorProps are passed to each page to give it the
     //      navigator so it can push pages onto the navigator
     switch (route.pageIdent) {

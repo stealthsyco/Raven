@@ -85,19 +85,19 @@ const styles = StyleSheet.create({
   	width: 150,
   	height: 150
   },
-    loginButton: {
+  loginButton: {
     flex: .5,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#1C1C1C'
   },
-    signButton: {
+  signButton: {
     flex: .5,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#199C66'
   },
-   whiteFont: {
+  whiteFont: {
   	color: '#FFFFFF',
   	fontFamily: 'Verdana',
   	fontSize: 15

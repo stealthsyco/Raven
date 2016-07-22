@@ -55,10 +55,30 @@ import GLOBAL from '../Globals.js'
 		});
 	}
 
+  function mobileResponse(mobile, carrier, callback){
+    fetch('http://' + GLOBAL.DATABASE + ':8888/api/checkPhone/' + mobile + '/' + carrier)
+    .then((response) => response.json())
+		.then((responseData) => {
+			console.log(responseData);
+			callback(responseData);
+		})
+		// .then((response) => {
+		// 	callback(response);
+		// })
+		// .then(responseData) => {
+		// 	console.log(responseData.json);
+		// 	callback(responseData);
+		// })
+		.catch((error) => {
+			console.warn(error);
+		});
+  }
+
 	var helperFunctions = {
 		getAge: getAge,
 		checkUsername: checkUsername,
-		checkLogin: checkLogin
+		checkLogin: checkLogin,
+    mobileResponse: mobileResponse
 	};
 
 	return helperFunctions;

@@ -5,7 +5,9 @@
 'use strict';
 
 //import PureComponent from 'react-pure-render/mixin';
+import GLOBAL from '../Globals.js'
 import Keyboard from 'Keyboard';
+import helperFunctions from '../classes/helperFunctions.js'
 import React, { Component } from 'react';
 import {
   AppRegistry,
@@ -28,7 +30,6 @@ import {
 var DatePickerModal = require('react-native-custom-action-sheet');
 var dismissKeyboard = require('../classes/dismissKeyboard');
 var validator = require('validator');
-var helperFunctions = require('../classes/helperFunctions');
 
 // This is used to convert the date into a string
 var monthNames = ["January", "February", "March", "April", "May", "June",
@@ -39,7 +40,6 @@ var FanSignup = React.createClass({
 
   getInitialState(){
     return{
-      visibleHeight: Dimensions.get('window').height,
       keyboardSpace: 0,
       showScrollView: View,
       username: '',
@@ -50,6 +50,8 @@ var FanSignup = React.createClass({
       repeat: '',
       carrier: '',
       mobile: '',
+      mobileCode: '',
+      mobileCodeFromServer: '',
       showVerifyForm: false,
       showCarrierPicker: false,
       emailValid: false,
@@ -68,37 +70,44 @@ var FanSignup = React.createClass({
     Keyboard.addListener('keyboardWillHide', (event) => this.keyboardWillHide(event))
   },
 
-  keyboardWillShow(event){
-    this.setState({ showScrollView: ScrollView })
+  keyboardWillShow(event) {
     this.setState({ keyboardSpace: event.endCoordinates.height })
-    //this.setState({ visibleHeight: openKeyboard })
   },
 
   keyboardWillHide(event){
-    this.setState({ showScrollView: View })
     this.setState({ keyboardSpace: 0 })
-    //this.setState({ visibleHeight: Dimensions.get('window').height })
-  },
-
-  //When the date changes in the date picker, convert the date into a string.
-  //Also, update the date as it gets set.
-  onDateChange(date){
-    this.setState({ date: new Date(date) });
-    console.log(date);
-    this.setState({ dob: monthNames[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear().toString() });
-    if(helperFunctions.getAge(date) >= 13)
-      this.setState({ dateValid: true });
-    else
-      this.setState({ dateValid: false });
-    console.log(this.state.dateValid);
   },
 
   /* When the signup button is pressed, this checks to make sure all of the required fields are
      valid. It then makes a POST request to the server.
      **Functionality to move to the next page needs to be added** */
   onSignPressed(){
+    if(this.state.emailValid && this.state.usernameCheckValid && this.state.firstValid && this.state.lastValid && this.state.passwordValid && this.state.mobileValid && this.state.carrierValid){
+      var self = this
+      helperFunctions.mobileResponse(this.state.mobile, this.state.carrier, function(response){
+      if(response.status === 200){
+        self.setState({ mobileCodeFromServer: response.mobileCode });
+        console.log(response.mobileCode)
+      } else {
+        //TODO: Show some error message...
+      }
+    });
     this.setState({showVerifyForm: true})
-    if(this.state.emailValid && this.state.usernameCheckValid && this.state.firstValid && this.state.lastValid && this.state.passwordValid && this.state.dateValid){
+    } else {
+      console.log('Username: ' + this.state.usernameCheckValid);
+      console.log("Email: " + this.state.emailValid);
+      console.log('Date: ' + this.state.dateValid);
+      console.log('Password: ' + this.state.passwordValid);
+      console.log('First: ' + this.state.firstValid);
+      console.log('Last: ' + this.state.lastValid);
+    }
+
+  },
+
+  onVerifyPressed() {
+    console.log(this.state.mobileCode);
+    console.log(this.state.mobileCodeFromServer);
+    if((this.state.mobileCode == this.state.mobileCodeFromServer) && this.state.mobileCode != ''){
       var obj = {
         method: 'POST',
         headers: {
@@ -109,14 +118,15 @@ var FanSignup = React.createClass({
           'username': this.state.username,
           'password': this.state.password,
           'email': this.state.email,
-          'dob': this.state.dob,
           'first': this.state.first,
           'last': this.state.last,
+          'mobile': this.state.mobile,
+          'carrier': this.state.carrier
 
         })
       }
 
-      fetch('http://www.smithcoding.com:8888/api/users', obj)
+      fetch('http://' + GLOBAL.DATABASE + ':8888/api/users', obj)
         .then((response) => response.text())
         .then((responseText) => {
           console.log(responseText);
@@ -134,14 +144,9 @@ var FanSignup = React.createClass({
           {text: 'Let\'s GO!', onPress: this.props.navigator.popToTop()}
         ],
       );
-
     } else {
-      console.log('Username: ' + this.state.usernameCheckValid);
-      console.log("Email: " + this.state.emailValid);
-      console.log('Date: ' + this.state.dateValid);
-      console.log('Password: ' + this.state.passwordValid);
-      console.log('First: ' + this.state.firstValid);
-      console.log('Last: ' + this.state.lastValid);
+      console.log(this.state.mobileCode);
+      console.log(this.state.mobileCodeFromServer);
     }
   },
 
@@ -194,8 +199,6 @@ var FanSignup = React.createClass({
   // Setter for repeat password changing. Same story as password
   onRepeatChanged(updateRepeat){
     this.setState({ repeat: updateRepeat });
-    console.log(updateRepeat);
-    console.log(this.state.password);
     if(updateRepeat.length > 7 && this.state.password === updateRepeat)
       this.setState({ passwordValid: true });
     else
@@ -204,44 +207,44 @@ var FanSignup = React.createClass({
 
   onMobileChanged(updateMobile){
     this.setState({ mobile: updateMobile });
+
+    if(updateMobile.length === 10){
+      this.setState({ mobileValid: true })
+    } else {
+      this.setState({ mobileValid: false })
+    }
   },
 
   render() {
 
-    const keyboardSpacer =  110 - (this.state.keyboardSpace / 3)
-    console.log(keyboardSpacer);
+    const keyboardSpacer =  110// - (this.state.keyboardSpace / 3)
     //There is a problem with DatePickerIOS which causes two warnings, but the functionality still works.
     //This problem needs to be fixed by Facebook, but is not hindering progress.
     console.disableYellowBox = true;
     //This type of fuction has two options, one with true and one with false.
     //If it is false, the empty view is called. If it is true, the date picker
     //is shown.
-    var showVerifyForm = this.state.showVerifyForm ?
-      <View style={styles.verifyTextForm}>
-        <Modal>
-        {showVerifyForm}
-        </Modal>
-      </View> : <View />
     var showCarrierPicker = this.state.showCarrierPicker ?
       <DatePickerModal modalVisible={this.state.modalVisible}
-        onCancel={() => this.setState({showCarrierPicker:false})}>
+        onCancel={() => {this.setState({showCarrierPicker:false}),
+                          this.setState({ carrierValid: true })}}>
         {showCarrierPicker}
         {dismissKeyboard()}
         <View style={styles.datePickerContainer}>
         <Picker
           selectedValue={this.state.carrier}
           onValueChange={(carrier) => this.setState({carrier})}>
-          <Picker.Item label="AT&T" value="AT&T" />
-          <Picker.Item label="Verizon" value="Verizon" />
-          <Picker.Item label="C Spire" value="C Spire" />
-          <Picker.Item label="Boost Mobile" value="Boost Mobile" />
-          <Picker.Item label="Project Fi" value="Project Fi" />
-          <Picker.Item label="T-Mobile" value="T-Mobile" />
-          <Picker.Item label="Sprint" value="Sprint" />
-          <Picker.Item label="U.S Cellular" value="U.S Cellular" />
-          <Picker.Item label="Virgin Mobile" value="Virgin Mobile" />
-          <Picker.Item label="Alltel" value="Alltel" />
-          <Picker.Item label="Cricket Wireless" value="Cricket Wireless" />
+          <Picker.Item label="AT&T" value="ATT" />
+          <Picker.Item label="Verizon" value="VER" />
+          <Picker.Item label="C Spire" value="CSP" />
+          <Picker.Item label="Boost Mobile" value="BMO" />
+          <Picker.Item label="Project Fi" value="PFI" />
+          <Picker.Item label="T-Mobile" value="TMO" />
+          <Picker.Item label="Sprint" value="SPR" />
+          <Picker.Item label="U.S Cellular" value="USC" />
+          <Picker.Item label="Virgin Mobile" value="VMO" />
+          <Picker.Item label="Alltel" value="ALL" />
+          <Picker.Item label="Cricket Wireless" value="CRK" />
           </Picker>
         </View>
       </DatePickerModal> : <View />
@@ -281,18 +284,36 @@ var FanSignup = React.createClass({
       else if(this.state.password == this.state.repeat && this.state.repeat.length > 7)
         repeatField = styles.validField;
 
-    var changeView = this.state.showScrollView;
     return (
       <View style={styles.container}>
         <Modal
             transparent={true}
             visible={this.state.showVerifyForm}>
             <View style={styles.verifyContainer}>
-              <View style={styles.verifyTextForm} />
+              <View style={styles.verifyTextForm}>
+                <Text style={styles.defaultStyle}>Please enter the code that was sent to your mobile phone</Text>
+                <TextInput
+                  style={styles.defaultField}
+                  keyboardType='numeric'
+                  maxLength={6}
+                  value={this.state.mobileCode}
+                  onChangeText={(mobileCode) => this.setState({mobileCode:mobileCode})} />
+                <View style={styles.verifyButtonsContainer}>
+                  <TouchableOpacity
+                      onPress={() => this.setState({ showVerifyForm: false })}
+                      style={styles.cancelButton}>
+                      <Text style={styles.whiteFont}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                      onPress={() => this.onVerifyPressed()}
+                      style={styles.signButton}>
+                      <Text style={styles.whiteFont}>Verify</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
         </Modal>
         <View style={[styles.inputContainer, { paddingTop: keyboardSpacer }]}>
-        <ScrollView contentContainerStyle={styles.inputContainer}>
           <View style={usernameField}>
               <View style={styles.iconContainer} />
               <TextInput
@@ -397,8 +418,6 @@ var FanSignup = React.createClass({
             style={styles.signButton}>
             <Text style={styles.whiteFont}>SIGN UP</Text>
           </TouchableHighlight>
-
-        </ScrollView>
         </View>
 
         <View style={styles.bottomSpacer} />
@@ -453,6 +472,12 @@ var styles = StyleSheet.create({
     backgroundColor: "#2C2C2C",
     flexDirection: 'row'
   },
+  cancelButton: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#1C1C1C'
+  },
   signButton: {
     flex: 1,
     justifyContent: 'center',
@@ -481,6 +506,15 @@ var styles = StyleSheet.create({
     fontFamily: 'Verdana',
     fontSize: 15
   },
+  datePickerContainer: {
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'flex-end',
+    height: 150
+  },
+  verifyButtonsContainer: {
+    flex: 1,
+    flexDirection: 'row',
+  },
   verifyContainer: {
     flex: 1,
     flexDirection: 'column',
@@ -489,8 +523,8 @@ var styles = StyleSheet.create({
   },
   verifyTextForm: {
     backgroundColor: 'white',
-    height: 300,
-    width: 330
+    height: 200,
+    width: 250
   }
 });
 
