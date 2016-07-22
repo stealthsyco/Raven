@@ -41,11 +41,8 @@ var FanSignup = React.createClass({
   getInitialState(){
     return{
       keyboardSpace: 0,
-      showScrollView: View,
       username: '',
       email: '',
-      first: '',
-      last: '',
       password: '',
       repeat: '',
       carrier: '',
@@ -56,8 +53,6 @@ var FanSignup = React.createClass({
       showCarrierPicker: false,
       emailValid: false,
       usernameValid: false,
-      firstValid: false,
-      lastValid: false,
       passwordValid: false,
       mobileValid: false,
       carrierValid: false,
@@ -82,7 +77,7 @@ var FanSignup = React.createClass({
      valid. It then makes a POST request to the server.
      **Functionality to move to the next page needs to be added** */
   onSignPressed(){
-    if(this.state.emailValid && this.state.usernameCheckValid && this.state.firstValid && this.state.lastValid && this.state.passwordValid && this.state.mobileValid && this.state.carrierValid){
+    if(this.state.emailValid && this.state.usernameCheckValid && this.state.passwordValid && this.state.mobileValid && this.state.carrierValid){
       var self = this
       helperFunctions.mobileResponse(this.state.mobile, this.state.carrier, function(response){
       if(response.status === 200){
@@ -98,8 +93,6 @@ var FanSignup = React.createClass({
       console.log("Email: " + this.state.emailValid);
       console.log('Date: ' + this.state.dateValid);
       console.log('Password: ' + this.state.passwordValid);
-      console.log('First: ' + this.state.firstValid);
-      console.log('Last: ' + this.state.lastValid);
     }
 
   },
@@ -118,8 +111,6 @@ var FanSignup = React.createClass({
           'username': this.state.username,
           'password': this.state.password,
           'email': this.state.email,
-          'first': this.state.first,
-          'last': this.state.last,
           'mobile': this.state.mobile,
           'carrier': this.state.carrier
 
@@ -176,17 +167,6 @@ var FanSignup = React.createClass({
     this.setState({ emailValid: validator.isEmail( updateEmail )});
   },
 
-  // Setter for first changing
-  onFirstChanged(updateFirst){
-    this.setState({ first: updateFirst });
-    this.setState({ firstValid: validator.isAlpha( updateFirst )});
-  },
-  // Setter for last changing
-  onLastChanged(updateLast){
-    this.setState({ last: updateLast });
-    this.setState({ lastValid: validator.isAlpha( updateLast )});
-  },
-
   // Setter for password changing. Also makes sure the password is === to repeat and that it is at least 8 characters long.
   onPasswordChanged(updatePassword){
     this.setState({ password: updatePassword });
@@ -217,7 +197,7 @@ var FanSignup = React.createClass({
 
   render() {
 
-    const keyboardSpacer =  110// - (this.state.keyboardSpace / 3)
+    const keyboardSpacer =  100// - (this.state.keyboardSpace / 3)
     //There is a problem with DatePickerIOS which causes two warnings, but the functionality still works.
     //This problem needs to be fixed by Facebook, but is not hindering progress.
     console.disableYellowBox = true;
@@ -291,9 +271,9 @@ var FanSignup = React.createClass({
             visible={this.state.showVerifyForm}>
             <View style={styles.verifyContainer}>
               <View style={styles.verifyTextForm}>
-                <Text style={styles.defaultStyle}>Please enter the code that was sent to your mobile phone</Text>
+                <Text style={[styles.defaultField, styles.whiteFont, { textAlign: 'center' }]}>Please enter the code that was sent to your mobile phone</Text>
                 <TextInput
-                  style={styles.defaultField}
+                  style={[styles.defaultField, styles.whiteFont, { textAlign: 'center' }]}
                   keyboardType='numeric'
                   maxLength={6}
                   value={this.state.mobileCode}
@@ -301,12 +281,12 @@ var FanSignup = React.createClass({
                 <View style={styles.verifyButtonsContainer}>
                   <TouchableOpacity
                       onPress={() => this.setState({ showVerifyForm: false })}
-                      style={styles.cancelButton}>
+                      style={[styles.cancelButton, { borderWidth: 1, marginRight: 1}]}>
                       <Text style={styles.whiteFont}>Cancel</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                       onPress={() => this.onVerifyPressed()}
-                      style={styles.signButton}>
+                      style={[styles.signButton, { borderWidth: 1 }]}>
                       <Text style={styles.whiteFont}>Verify</Text>
                   </TouchableOpacity>
                 </View>
@@ -335,32 +315,11 @@ var FanSignup = React.createClass({
                 style={[styles.textContainer, styles.whiteFont]}
                 autoCorrect={false}
                 autoCapitalize='none'
+                keyboardType='email-address'
                 placeholder="Email"
                 placeholderTextColor="#6F6F6F"
                 value={this.state.email}
                 onChangeText={(updateEmail) => this.onEmailChanged(updateEmail)} />
-          </View>
-
-          <View style={styles.nameContainer}>
-            <View style={styles.iconContainer} />
-              <View style={styles.textContainer}>
-                <TextInput
-                  style={[styles.firstLastField, styles.whiteFont, {paddingLeft:1}]}
-                  autoCorrect={false}
-                  autoCapitalize='none'
-                  placeholder="First"
-                  placeholderTextColor="#6F6F6F"
-                  value={this.state.first}
-                  onChangeText={(updateFirst) => this.onFirstChanged(updateFirst)} />
-                <TextInput
-                  style={[styles.firstLastField, styles.whiteFont]}
-                  autoCorrect={false}
-                  autoCapitalize='none'
-                  placeholder="Last"
-                  placeholderTextColor="#6F6F6F"
-                  value={this.state.last}
-                  onChangeText={(updateLast) => this.onLastChanged(updateLast)} />
-              </View>
           </View>
 
           <View style={passwordField}>
@@ -393,7 +352,7 @@ var FanSignup = React.createClass({
             <View style={styles.iconContainer} />
               <View style={styles.textContainer}>
                 <TextInput
-                  style={[styles.firstLastField, styles.whiteFont]}
+                  style={[{flex: 1}, styles.whiteFont]}
                   keyboardType='numeric'
                   placeholder="Mobile Number"
                   placeholderTextColor="#6F6F6F"
@@ -408,7 +367,9 @@ var FanSignup = React.createClass({
             <TouchableOpacity
               style={styles.textContainer}
               onPress={() => this.setState({showCarrierPicker:true})}>
-              <Text style={[styles.whiteFont, {textAlign: 'center'}]}>{this.state.carrier}</Text>
+              <View style={{alignItems: 'center', justifyContent: 'center'}}>
+              <Text style={styles.whiteFont}>{this.state.carrier}</Text>
+              </View>
               </TouchableOpacity>
             {showCarrierPicker}
           </View>
@@ -436,7 +397,7 @@ var styles = StyleSheet.create({
     flex: .20
   },
   inputContainer: {
-    flex: 3,
+    flex: 2,
     backgroundColor: '#1C1C1C',
     marginLeft: 20,
     marginRight: 20
@@ -459,16 +420,6 @@ var styles = StyleSheet.create({
     flex: 1,
     borderWidth: 1,
     borderColor: '#00FF00',
-    backgroundColor: "#2C2C2C",
-    flexDirection: 'row'
-  },
-  firstLastField: {
-    flex: 1,
-  },
-  nameContainer: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#1C1C1C',
     backgroundColor: "#2C2C2C",
     flexDirection: 'row'
   },
@@ -501,6 +452,13 @@ var styles = StyleSheet.create({
   bottomSpacer: {
     flex: 1
   },
+  nameContainer: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#1C1C1C',
+    backgroundColor: "#2C2C2C",
+    flexDirection: 'row'
+  },
   whiteFont: {
     color: '#FFFFFF',
     fontFamily: 'Verdana',
@@ -509,7 +467,7 @@ var styles = StyleSheet.create({
   datePickerContainer: {
     backgroundColor: '#FFFFFF',
     justifyContent: 'flex-end',
-    height: 150
+    height: 200
   },
   verifyButtonsContainer: {
     flex: 1,
@@ -517,13 +475,13 @@ var styles = StyleSheet.create({
   },
   verifyContainer: {
     flex: 1,
+    //backgroundColor: '#1B1B1B',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
   },
   verifyTextForm: {
-    backgroundColor: 'white',
-    height: 200,
+    height: 166,
     width: 250
   }
 });
